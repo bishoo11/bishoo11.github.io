@@ -1,0 +1,16 @@
+{
+  "name": "أخبار محافظات الكويت",
+  "short_name": "أخبار الكويت",
+  "description": "أستوديو أتمتة وتصميم بوستات أخبار محافظات الكويت الست لإنستغرام",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0f17",
+  "theme_color": "#0d131f",
+  "icons": [
+    {
+      "src": "templates_overlay/assets/app_icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
