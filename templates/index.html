@@ -967,77 +967,76 @@
         <!-- Settings Sidebar -->
         <div class="studio-sidebar">
             
-            <!-- ⚡ صندوق الاستيراد الموحد السريع (الصورة + المحتوى معاً) -->
+            <!-- ⚡ استيراد وتجهيز الخبر الفوري (الصورة + المحتوى معاً) -->
             <div class="unified-importer-card" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); border: 1.5px solid rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 14px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span class="pulse-dot"></span>
-                        <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">استيراد الخبر (الصورة + المحتوى معاً)</span>
+                        <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">استيراد الخبر (الصورة + المحتوى)</span>
                     </div>
                     <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700;">فوري ⚡</span>
                 </div>
                 <div style="font-size: 0.73rem; color: #94a3b8; margin-bottom: 10px; line-height: 1.4;">
-                    اسحب صورة الخبر والنص تلقائياً من الرابط (يتم سحب <strong>صورة البوست فقط بدقة أصلية</strong>)، أو استخدم الحافظة السريعة بلمسة واحدة.
+                    ضع صورة البوست والنص هنا ليتم تركيبهما في القالب فوراً، ثم راجع وعدّل واحفظ مباشرة!
                 </div>
 
-                <!-- 1. شريط الرابط السريع (سحب صورة البوست الحقيقية فقط + النص) -->
-                <div class="importer-input-row">
-                    <input type="url" id="postUrlInput" placeholder="ضع رابط الخبر أو التغريدة (سحب تلقائي دقيق)" dir="ltr">
-                    <button type="button" class="btn-import" id="btnFetchPost" onclick="fetchPostFromUrl()">
-                        ⚡ سحب
-                    </button>
-                </div>
-                <div id="importStatus" style="display: none; font-size: 0.74rem; color: #38bdf8; margin-top: 6px; text-align: center;">
-                    ⏳ جاري استخراج البيانات والصور...
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 8px; margin: 10px 0; color: #64748b; font-size: 0.72rem;">
-                    <span style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
-                    <span>أو إجراءات الحافظة السريعة</span>
-                    <span style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+                <!-- 1. منطقة اختيار أو إفلات أو لصق صورة البوست فقط -->
+                <div id="quickPhotoDropzone" onclick="document.getElementById('hiddenFileInput').click()" style="background: rgba(56, 189, 248, 0.08); border: 1.5px dashed rgba(56, 189, 248, 0.45); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; margin-bottom: 10px; transition: all 0.2s;">
+                    <div id="dropzoneLabel" style="font-size: 0.84rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span>📷 اضغط لاختيار صورة البوست من جهازك أو اسحبها هنا</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 3px;">
+                        (أو انسخ الصورة واضغط <strong>Ctrl + V</strong> في أي مكان للصقها فوراً)
+                    </div>
                 </div>
 
-                <!-- 2. زر الحافظة الشامل (صورة أو نص أو رابط) -->
-                <button type="button" class="action-btn" style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; font-size: 0.92rem; font-weight: 800; padding: 12px; border-radius: 10px; justify-content: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); border: none; cursor: pointer; margin-bottom: 8px;" onclick="smartPasteFromClipboard()">
-                    📋 لصق ذكي من الحافظة (نص / رابط / صورة)
+                <!-- 2. مربع لصق نص أو كابشن الخبر مع فرز تلقائي فوري -->
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 0.76rem; font-weight: 700; color: #cbd5e1; margin-bottom: 4px; display: block;">
+                        📝 كابشن أو نص الخبر:
+                    </label>
+                    <textarea id="rawPostTextInput" rows="2" placeholder="الصق نص الخبر أو كابشن البوست هنا (يتم تحديد العنوان والمتن والمحافظة تلقائياً بمجرد اللصق)..." oninput="onFastCaptionInput(this.value)" style="width: 100%; background: #090d14; border: 1px solid var(--border-ui); border-radius: 8px; color: #fff; padding: 8px; font-size: 0.82rem; resize: vertical; min-height: 52px;"></textarea>
+                </div>
+
+                <!-- 3. زر اللصق السحري الشامل (يقرأ النص والصورة من الحافظة بضغطة واحدة) -->
+                <button type="button" class="action-btn" style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; font-size: 0.88rem; font-weight: 800; padding: 10px; border-radius: 10px; justify-content: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); border: none; cursor: pointer; margin-bottom: 10px;" onclick="smartPasteFromClipboard()">
+                    📋 لصق ذكي شامل من الحافظة (نص + صورة)
                 </button>
 
-                <!-- 3. زر اختيار صورة البوست + زر النص اليدوي -->
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" class="action-btn" style="flex: 1; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-size: 0.8rem; font-weight: 700; padding: 9px; justify-content: center;" onclick="document.getElementById('hiddenFileInput').click()">
-                        📷 اختيار صورة البوست من الجهاز
-                    </button>
-                    <button type="button" class="action-btn" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-ui); color: #cbd5e1; font-size: 0.8rem; padding: 9px 12px;" onclick="toggleManualTextHelper()" title="لصق أو كتابة نص يدوي">
-                        📝 نص يدوي
-                    </button>
-                </div>
-
-                <!-- صندوق النص اليدوي القابل للطي -->
-                <div id="manualTextCollapse" style="display: none; margin-top: 10px;">
-                    <textarea id="rawPostTextInput" rows="3" placeholder="انسخ والصق نص الخبر كاملاً هنا، وسيقوم النظام فوراً بتحديد العنوان والمانشيت والمتن والمحافظة..." style="width: 100%; background: #090d14; border: 1px solid var(--border-ui); border-radius: 8px; color: #fff; padding: 8px; font-size: 0.8rem;"></textarea>
-                    <button type="button" class="btn-import" style="width: 100%; margin-top: 6px; padding: 7px; font-size: 0.8rem; font-weight: 700;" onclick="parseAndApplyRawText()">
-                        ✨ تحليل وفرز النص في القالب فوراً
-                    </button>
+                <!-- 4. سحب من رابط مباشر (Twitter / X أو مواقع الأخبار) -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-ui); border-radius: 8px; padding: 8px;">
+                    <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 5px;">
+                        🔗 أو اسحب من رابط (تويتر / X أو مواقع الأخبار):
+                    </div>
+                    <div class="importer-input-row" style="margin-bottom: 0;">
+                        <input type="url" id="postUrlInput" placeholder="ضع رابط التغريدة أو المقال..." dir="ltr" style="font-size: 0.8rem; padding: 6px 10px;">
+                        <button type="button" class="btn-import" id="btnFetchPost" onclick="fetchPostFromUrl()" style="padding: 6px 14px; font-size: 0.8rem;">
+                            ⚡ سحب
+                        </button>
+                    </div>
+                    <div id="importStatus" style="display: none; font-size: 0.72rem; color: #38bdf8; margin-top: 5px; text-align: center;">
+                        ⏳ جاري استخراج البيانات والصور...
+                    </div>
                 </div>
 
                 <!-- زر الإشارة المرجعية لإنستغرام على الكمبيوتر -->
-                <div class="bookmarklet-box" style="margin-top: 12px; background: rgba(225, 29, 72, 0.1); border: 1px dashed rgba(244, 63, 94, 0.4); border-radius: 8px; padding: 9px;">
-                    <div style="font-size: 0.76rem; font-weight: 800; color: #fb7185; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
-                        <span>🚀 زر السحب التلقائي لإنستغرام</span>
-                        <span style="font-size: 0.65rem; background: rgba(244, 63, 94, 0.2); color: #fda4af; padding: 1px 6px; border-radius: 4px;">تلقائي ⚡</span>
+                <div class="bookmarklet-box" style="margin-top: 10px; background: rgba(225, 29, 72, 0.08); border: 1px dashed rgba(244, 63, 94, 0.35); border-radius: 8px; padding: 8px;">
+                    <div style="font-size: 0.73rem; font-weight: 800; color: #fb7185; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🚀 زر السحب التلقائي لإنستغرام (للمتصفح)</span>
+                        <span style="font-size: 0.62rem; background: rgba(244, 63, 94, 0.2); color: #fda4af; padding: 1px 5px; border-radius: 4px;">تلقائي ⚡</span>
                     </div>
-                    <div style="font-size: 0.7rem; color: #cbd5e1; line-height: 1.35; margin-bottom: 6px;">
-                        اسحب هذا الزر إلى <strong>شريط المفضلة Bookmarks</strong> بمتصفحك.. وبأي وقت وأنت فاتح بوست إنستغرام اضغط عليه فقط ليسحب صورة البوست والنص فوراً!
+                    <div style="font-size: 0.68rem; color: #cbd5e1; line-height: 1.3; margin-bottom: 5px;">
+                        اسحبه لشريط المفضلة.. وعند فتح أي بوست إنستغرام اضغط عليه لسحب الصورة والنص تلقائياً!
                     </div>
                     <div style="display: flex; gap: 6px;">
                         <a href="javascript:(function(){try{var caption='';var h1=document.querySelector('article h1, h1');if(h1&&h1.innerText&&h1.innerText.length>10){caption=h1.innerText;}else{var spans=Array.from(document.querySelectorAll('article span[dir=\x22auto\x22], article span'));if(spans.length){spans.sort(function(a,b){return b.innerText.length-a.innerText.length;});caption=spans[0].innerText;}}var images=[];var article=document.querySelector('article')||document;article.querySelectorAll('img').forEach(function(img){if(img.naturalWidth>0&&img.naturalWidth<250)return;if(img.width<250&&img.height<250)return;if(img.alt&&(img.alt.indexOf('profile')!==-1||img.alt.indexOf('الملف الشخصي')!==-1))return;var src=img.src;if(img.srcset){var items=img.srcset.split(',');var last=items[items.length-1].trim().split(' ')[0];if(last)src=last;}if(src&&images.indexOf(src)===-1)images.push(src);});if(!caption&&images.length===0){alert('يرجى فتح بوست إنستغرام أولاً!');return;}var payload=encodeURIComponent(JSON.stringify({text:caption,images:images}));window.open('https://bishoo11.github.io/#import='+payload,'_blank');}catch(e){alert('خطأ أثناء السحب: '+e.message);}})();" 
                            class="action-btn" 
-                           style="flex: 1; justify-content: center; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: #fff; font-size: 0.75rem; font-weight: 800; text-decoration: none; padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); cursor: grab;"
+                           style="flex: 1; justify-content: center; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: #fff; font-size: 0.72rem; font-weight: 800; text-decoration: none; padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); cursor: grab;"
                            title="اسحب هذا الزر بالماوس إلى شريط المفضلة أعلى متصفحك"
                            onclick="event.preventDefault(); showToast('📌 اسحب هذا الزر بالماوس إلى شريط المفضلة أعلى متصفحك!');">
                             ⚡ اسحبني للمفضلة
                         </a>
-                        <button type="button" class="tool-btn" style="padding: 6px 10px; font-size: 0.72rem; color: #f43f5e;" onclick="copyBookmarkletCode()" title="نسخ كود الأداة">
+                        <button type="button" class="tool-btn" style="padding: 5px 8px; font-size: 0.7rem; color: #f43f5e;" onclick="copyBookmarkletCode()" title="نسخ كود الأداة">
                             📋 نسخ الكود
                         </button>
                     </div>
@@ -1339,10 +1338,10 @@
             bodySize: 24,
             bodyY: 1010,
             bodyColor: "#ffffff",
-            photoX: 67,
+            photoX: 50,
             photoY: 250,
-            photoW: 905,
-            photoH: 493,
+            photoW: 924,
+            photoH: 494,
             photoRadius: 22,
             // مصفوفة صور الخبر المرفوعة
             images: [],
@@ -1751,6 +1750,20 @@
                 if (mDown) mDown.innerText = "⬇ حفظ الصورة";
                 if (mShare) mShare.innerText = "⚡ مشاركة ونشر";
             }
+
+            const dropLabel = document.getElementById("dropzoneLabel");
+            const dropzone = document.getElementById("quickPhotoDropzone");
+            if (dropLabel) {
+                if (count > 0) {
+                    dropLabel.innerHTML = `<span>✓ صورة البوست جاهزة في القالب (اضغط لتغييرها) 🔄</span>`;
+                    dropLabel.style.color = "#4ade80";
+                    if (dropzone) dropzone.style.borderColor = "rgba(74, 222, 128, 0.5)";
+                } else {
+                    dropLabel.innerHTML = `<span>📷 اضغط لاختيار صورة البوست من جهازك أو اسحبها هنا</span>`;
+                    dropLabel.style.color = "#38bdf8";
+                    if (dropzone) dropzone.style.borderColor = "rgba(56, 189, 248, 0.45)";
+                }
+            }
         }
 
         // سحب وتحريك الصورة الحالية بالماوس واللمس
@@ -1872,6 +1885,10 @@
             ctx.closePath();
             ctx.clip();
 
+            // خلفية داكنة نظيفة تماماً تحت الصورة تمنع ظهور أي فراغات أو ألوان قديمة نهائياً
+            ctx.fillStyle = "#090d16";
+            ctx.fillRect(px - 10, py - 10, pw + 20, ph + 20);
+
             if (imgObj && imgObj.img) {
                 const img = imgObj.img;
                 const zoom = imgObj.zoom || 1.0;
@@ -1884,9 +1901,6 @@
                 const dx = px + (pw - dw) / 2 + panX;
                 const dy = py + (ph - dh) / 2 + panY;
                 ctx.drawImage(img, dx, dy, dw, dh);
-            } else {
-                ctx.fillStyle = "#1e293b";
-                ctx.fillRect(px, py, pw, ph);
             }
             ctx.restore();
 
@@ -1895,7 +1909,7 @@
                 const dateW = 260;
                 const dateH = 54;
                 const dateX = 704;
-                const dateY = py + ph - 53;
+                const dateY = py + ph - 54;
 
                 ctx.save();
                 ctx.fillStyle = "#011f4c";
@@ -2613,6 +2627,23 @@
             const el = document.getElementById("manualTextCollapse");
             if (el) {
                 el.style.display = (el.style.display === "none" || !el.style.display) ? "block" : "none";
+            }
+        }
+
+        function onFastCaptionInput(text) {
+            if (!text || !text.trim()) return;
+            const trimmed = text.trim();
+            if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+                const urlInput = document.getElementById("postUrlInput");
+                if (urlInput) urlInput.value = trimmed;
+                fetchPostFromUrl(trimmed);
+                return;
+            }
+            const parsed = smartParseNewsText(trimmed);
+            if (parsed) {
+                applyParsedNews(parsed);
+                const govName = parsed.governorateId ? GOVERNORATES[parsed.governorateId].name : "العاصمة";
+                showToast(`✓ تم فرز العنوان والمحتوى والمحافظة: ${govName}`);
             }
         }
 
