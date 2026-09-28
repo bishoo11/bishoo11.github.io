@@ -238,6 +238,85 @@
             margin-bottom: 18px;
         }
 
+        /* Thumbnails Strip for Multiple Images */
+        .thumbnails-container {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-ui);
+        }
+
+        .thumbnails-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #38bdf8;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .thumbnails-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 8px 0;
+        }
+
+        .thumb-item {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--border-ui);
+            cursor: pointer;
+            flex-shrink: 0;
+            background: #000;
+            transition: all 0.2s;
+        }
+
+        .thumb-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(30, 136, 229, 0.5);
+            transform: scale(1.04);
+        }
+
+        .thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumb-item .thumb-idx {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .thumb-item .thumb-del {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background: rgba(206, 17, 38, 0.9);
+            color: #fff;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+
         .slider-row {
             display: flex;
             align-items: center;
@@ -536,11 +615,11 @@
 
         <!-- أزرار الإجراء السريع (Desktop) -->
         <div class="actions-area header-desktop-only">
-            <button class="action-btn btn-copy" onclick="copyImageToClipboard()" title="نسخ الصورة للحافظة (Ctrl+C)">
-                <span>⚡ نسخ للحافظة</span>
+            <button class="action-btn btn-copy" onclick="shareOrCopyImage()" title="نسخ الصورة للحافظة أو مشاركة الألبوم">
+                <span id="btnCopyText">⚡ نسخ للحافظة</span>
             </button>
-            <button class="action-btn btn-download" onclick="downloadImage()" title="تحميل بدقة أصلية (Ctrl+S)">
-                <span>⬇ تحميل PNG</span>
+            <button class="action-btn btn-download" onclick="downloadAllImages()" title="تحميل الصور بدقة أصلية">
+                <span id="btnDownloadText">⬇ تحميل الصور</span>
             </button>
         </div>
     </header>
@@ -591,21 +670,21 @@
                 </div>
             </div>
 
-            <!-- 3. صورة الخبر -->
+            <!-- 3. صورة الخبر (تدعم رفع عدة صور معاً) -->
             <div class="section-header">
-                <span>2. صورة الخبر</span>
+                <span>2. صور الخبر (يمكنك اختيار عدة صور دفعة واحدة)</span>
                 <button type="button" class="action-btn" style="padding: 4px 10px; font-size: 0.78rem; background: var(--primary); color: #fff;" onclick="document.getElementById('hiddenFileInput').click()">
-                    📷 اختيار صورة
+                    📷 اختيار صور (ألبوم)
                 </button>
-                <input type="file" id="hiddenFileInput" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
+                <input type="file" id="hiddenFileInput" accept="image/*" multiple onchange="handleFileSelect(event)" style="display: none;">
             </div>
 
             <div class="photo-controls">
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button class="action-btn" style="flex: 1; border: 1px solid var(--border-ui); justify-content: center; background: rgba(255,255,255,0.06); color: #fff;" onclick="loadSampleImage()">
                         🖼 صورة تجريبية
                     </button>
-                    <button class="action-btn" style="border: 1px solid var(--border-ui); background: rgba(255,255,255,0.06); color: #fff;" onclick="resetPanZoom()" title="إعادة ضبط الموضع">
+                    <button class="action-btn" style="border: 1px solid var(--border-ui); background: rgba(255,255,255,0.06); color: #fff;" onclick="resetPanZoom()" title="إعادة ضبط موضع الصورة المعروضة">
                         🔄 توسيط
                     </button>
                 </div>
@@ -616,8 +695,24 @@
                     <span id="zoomVal" style="font-size: 0.75rem; color: var(--text-muted); width: 35px;">100%</span>
                 </div>
 
-                <div style="font-size: 0.74rem; color: #38bdf8; margin-top: 6px;">
-                    <span>👆 اضغط واسحب بالماوس أو الإصبع فوق الصورة لتحريكها وتوسيطها.</span>
+                <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    <label style="font-size: 0.76rem; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 700;">
+                        <input type="checkbox" id="autoDownloadCheck" checked> تنزيل تلقائي فوري لجميع الصور عند الرفع
+                    </label>
+                </div>
+
+                <!-- شريط معرض الصور في حال رفع أكثر من صورة -->
+                <div class="thumbnails-container" id="thumbnailsContainer" style="display: none;">
+                    <div class="thumbnails-header">
+                        <span id="photoCountBadge">📸 تم رفع (0) صور لهذا الخبر</span>
+                        <button type="button" class="tool-btn" style="padding: 1px 6px; font-size: 0.72rem; color: #ef4444;" onclick="clearAllImages()">مسح الكل</button>
+                    </div>
+                    <div class="thumbnails-bar" id="thumbnailsBar"></div>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">اضغط على أي صورة لتوسيطها أو معاينتها بشكل منفصل قبل التنزيل.</p>
+                </div>
+
+                <div style="font-size: 0.74rem; color: #38bdf8; margin-top: 8px;">
+                    <span>👆 اضغط واسحب بالماوس أو الإصبع فوق الكانفاس لتحريك وتوسيط الصورة.</span>
                 </div>
             </div>
 
@@ -706,16 +801,16 @@
     <!-- Sticky Mobile Bottom Bar -->
     <div class="mobile-bottom-bar">
         <button class="action-btn btn-copy" onclick="shareOrCopyImage()">
-            <span>⚡ مشاركة ونشر (Share)</span>
+            <span id="mobileShareText">⚡ مشاركة ونشر (Share)</span>
         </button>
-        <button class="action-btn btn-download" onclick="downloadImage()">
-            <span>⬇ حفظ الصورة</span>
+        <button class="action-btn btn-download" onclick="downloadAllImages()">
+            <span id="mobileDownloadText">⬇ حفظ الصور</span>
         </button>
     </div>
 
     <!-- Toast -->
     <div class="toast" id="toast">
-        <span id="toastMsg">✓ تم نسخ الصورة بنجاح!</span>
+        <span id="toastMsg">✓ تم الإجراء بنجاح!</span>
     </div>
 
     <script>
@@ -728,6 +823,7 @@
             jahra: { name: "محافظة الجهراء", color: "#16a34a" }
         };
 
+        // حالة التطبيق مع دعم تعدد الصور (Multi-Image Carousel)
         let state = {
             govId: "capital",
             headline: "محافظة العاصمة: تدشين ممشى رياضي متكامل وخدمات نموذجية جديدة",
@@ -745,10 +841,9 @@
             photoW: 905,
             photoH: 493,
             photoRadius: 22,
-            img: null,
-            imgZoom: 1.0,
-            imgPanX: 0,
-            imgPanY: 0,
+            // مصفوفة صور الخبر المرفوعة
+            images: [],
+            activeImageIndex: 0,
             canvaTemplates: {},
             calendarIcon: null
         };
@@ -831,16 +926,30 @@
             render();
         }
 
+        // تحكم في الصورة النشطة حالياً
+        function getActiveImageObj() {
+            if (state.images.length > 0 && state.images[state.activeImageIndex]) {
+                return state.images[state.activeImageIndex];
+            }
+            return null;
+        }
+
         function onZoomChange(val) {
-            state.imgZoom = parseFloat(val);
-            document.getElementById("zoomVal").innerText = Math.round(state.imgZoom * 100) + "%";
+            const current = getActiveImageObj();
+            if (current) {
+                current.zoom = parseFloat(val);
+            }
+            document.getElementById("zoomVal").innerText = Math.round(parseFloat(val) * 100) + "%";
             render();
         }
 
         function resetPanZoom() {
-            state.imgZoom = 1.0;
-            state.imgPanX = 0;
-            state.imgPanY = 0;
+            const current = getActiveImageObj();
+            if (current) {
+                current.zoom = 1.0;
+                current.panX = 0;
+                current.panY = 0;
+            }
             document.getElementById("zoomSlider").value = 1.0;
             document.getElementById("zoomVal").innerText = "100%";
             render();
@@ -853,67 +962,192 @@
             arrow.innerText = el.classList.contains("open") ? "▲" : "▼";
         }
 
+        // لصق الصور من الحافظة (يدعم صورة أو عدة صور)
         window.addEventListener("paste", (e) => {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            const newFiles = [];
             for (let item of items) {
                 if (item.type.indexOf("image") !== -1) {
-                    const blob = item.getAsFile();
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            state.img = img;
-                            resetPanZoom();
-                            showToast("✓ تم لصق الصورة بنجاح!");
-                        };
-                        img.src = event.target.result;
-                    };
-                    reader.readAsDataURL(blob);
-                    break;
+                    newFiles.push(item.getAsFile());
                 }
+            }
+            if (newFiles.length) {
+                processUploadedFiles(newFiles);
             }
         });
 
+        // اختيار عدة ملفات صور معاً
         function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (file) {
+            const files = Array.from(e.target.files);
+            if (files.length) {
+                processUploadedFiles(files);
+            }
+        }
+
+        // معالجة وإضافة الصور لقائمة الألبوم
+        function processUploadedFiles(fileList) {
+            let loadedCount = 0;
+            const initialLen = state.images.length;
+
+            fileList.forEach((file) => {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const img = new Image();
                     img.onload = () => {
-                        state.img = img;
-                        resetPanZoom();
-                        showToast("✓ تم اختيار الصورة بنجاح!");
+                        state.images.push({
+                            img: img,
+                            zoom: 1.0,
+                            panX: 0,
+                            panY: 0,
+                            src: ev.target.result
+                        });
+                        loadedCount++;
+
+                        if (loadedCount === fileList.length) {
+                            state.activeImageIndex = initialLen; // التركيز على أول صورة جديدة
+                            updateThumbnailsUI();
+                            syncZoomSlider();
+                            render();
+
+                            showToast(`✓ تم إضافة (${fileList.length}) صور للألبوم!`);
+
+                            // تحقق من التنزيل التلقائي إذا كان الخيار مفعلاً
+                            const autoDownload = document.getElementById("autoDownloadCheck").checked;
+                            if (autoDownload && fileList.length > 0) {
+                                setTimeout(() => {
+                                    downloadAllImages();
+                                }, 500);
+                            }
+                        }
                     };
                     img.src = ev.target.result;
                 };
                 reader.readAsDataURL(file);
-            }
+            });
         }
 
         function loadSampleImage() {
             const img = new Image();
             img.onload = () => {
-                state.img = img;
-                resetPanZoom();
+                state.images = [{
+                    img: img,
+                    zoom: 1.0,
+                    panX: 0,
+                    panY: 0,
+                    src: "sample_images/kuwait_sample.jpg"
+                }];
+                state.activeImageIndex = 0;
+                updateThumbnailsUI();
+                syncZoomSlider();
+                render();
                 showToast("✓ تم تحميل صورة كويتية نموذجية!");
             };
             img.src = "sample_images/kuwait_sample.jpg";
         }
 
+        function clearAllImages() {
+            state.images = [];
+            state.activeImageIndex = 0;
+            updateThumbnailsUI();
+            render();
+            showToast("تم مسح الصور");
+        }
+
+        function removeImageAt(idx, event) {
+            if (event) event.stopPropagation();
+            state.images.splice(idx, 1);
+            if (state.activeImageIndex >= state.images.length) {
+                state.activeImageIndex = Math.max(0, state.images.length - 1);
+            }
+            updateThumbnailsUI();
+            syncZoomSlider();
+            render();
+        }
+
+        function setActiveImage(idx) {
+            state.activeImageIndex = idx;
+            updateThumbnailsUI();
+            syncZoomSlider();
+            render();
+        }
+
+        function syncZoomSlider() {
+            const cur = getActiveImageObj();
+            const z = cur ? cur.zoom : 1.0;
+            document.getElementById("zoomSlider").value = z;
+            document.getElementById("zoomVal").innerText = Math.round(z * 100) + "%";
+        }
+
+        // تحديث شريط الثمبنيلز للألبوم
+        function updateThumbnailsUI() {
+            const container = document.getElementById("thumbnailsContainer");
+            const bar = document.getElementById("thumbnailsBar");
+            const badge = document.getElementById("photoCountBadge");
+            const btnCopy = document.getElementById("btnCopyText");
+            const btnDown = document.getElementById("btnDownloadText");
+            const mShare = document.getElementById("mobileShareText");
+            const mDown = document.getElementById("mobileDownloadText");
+
+            const count = state.images.length;
+
+            if (count > 0) {
+                container.style.display = "block";
+                badge.innerText = `📸 تم رفع (${count}) صور لهذا الخبر`;
+                btnDown.innerText = count > 1 ? `⬇ تحميل الكل (${count} صور)` : "⬇ تحميل الصورة";
+                btnCopy.innerText = count > 1 ? `⚡ مشاركة الألبوم (${count})` : "⚡ نسخ للحافظة";
+                mDown.innerText = count > 1 ? `⬇ حفظ الكل (${count})` : "⬇ حفظ الصورة";
+                mShare.innerText = count > 1 ? `⚡ نشر الكل (${count})` : "⚡ مشاركة ونشر";
+
+                bar.innerHTML = "";
+                state.images.forEach((item, idx) => {
+                    const div = document.createElement("div");
+                    div.className = "thumb-item" + (idx === state.activeImageIndex ? " active" : "");
+                    div.onclick = () => setActiveImage(idx);
+
+                    const img = document.createElement("img");
+                    img.src = item.src;
+                    div.appendChild(img);
+
+                    const num = document.createElement("span");
+                    num.className = "thumb-idx";
+                    num.innerText = `#${idx + 1}`;
+                    div.appendChild(num);
+
+                    const del = document.createElement("button");
+                    del.className = "thumb-del";
+                    del.innerHTML = "✕";
+                    del.onclick = (e) => removeImageAt(idx, e);
+                    div.appendChild(del);
+
+                    bar.appendChild(div);
+                });
+            } else {
+                container.style.display = "none";
+                btnDown.innerText = "⬇ تحميل الصور";
+                btnCopy.innerText = "⚡ نسخ للحافظة";
+                mDown.innerText = "⬇ حفظ الصورة";
+                mShare.innerText = "⚡ مشاركة ونشر";
+            }
+        }
+
+        // سحب وتحريك الصورة الحالية بالماوس واللمس
         let isDragging = false;
         let startX, startY;
 
         function startDrag(clientX, clientY) {
+            const cur = getActiveImageObj();
+            if (!cur) return;
             isDragging = true;
-            startX = clientX - state.imgPanX;
-            startY = clientY - state.imgPanY;
+            startX = clientX - cur.panX;
+            startY = clientY - cur.panY;
         }
 
         function moveDrag(clientX, clientY) {
             if (!isDragging) return;
-            state.imgPanX = clientX - startX;
-            state.imgPanY = clientY - startY;
+            const cur = getActiveImageObj();
+            if (!cur) return;
+            cur.panX = clientX - startX;
+            cur.panY = clientY - startY;
             render();
         }
 
@@ -940,7 +1174,14 @@
 
         window.addEventListener("touchend", endDrag);
 
+        // دالة الرسم العامة
         function render() {
+            const cur = getActiveImageObj();
+            renderWithImageObject(cur);
+        }
+
+        // رسم الكانفاس لصورة محددة
+        function renderWithImageObject(imgObj) {
             const w = 1024;
             const h = 1536;
 
@@ -976,13 +1217,18 @@
             ctx.closePath();
             ctx.clip();
 
-            if (state.img) {
-                const scale = Math.max(pw / state.img.width, ph / state.img.height) * state.imgZoom;
-                const dw = state.img.width * scale;
-                const dh = state.img.height * scale;
-                const dx = px + (pw - dw) / 2 + state.imgPanX;
-                const dy = py + (ph - dh) / 2 + state.imgPanY;
-                ctx.drawImage(state.img, dx, dy, dw, dh);
+            if (imgObj && imgObj.img) {
+                const img = imgObj.img;
+                const zoom = imgObj.zoom || 1.0;
+                const panX = imgObj.panX || 0;
+                const panY = imgObj.panY || 0;
+
+                const scale = Math.max(pw / img.width, ph / img.height) * zoom;
+                const dw = img.width * scale;
+                const dh = img.height * scale;
+                const dx = px + (pw - dw) / 2 + panX;
+                const dy = py + (ph - dh) / 2 + panY;
+                ctx.drawImage(img, dx, dy, dw, dh);
             } else {
                 ctx.fillStyle = "#1e293b";
                 ctx.fillRect(px, py, pw, ph);
@@ -1090,24 +1336,89 @@
             if (stroke) ctx.stroke();
         }
 
-        async function shareOrCopyImage() {
-            canvas.toBlob(async (blob) => {
-                if (!blob) return;
-                const file = new File([blob], `news_${state.govId}.png`, { type: "image/png" });
+        // ==========================================
+        // تنزيل وتصدير جميع الصور دفعة واحدة (Batch Export)
+        // ==========================================
+        async function downloadAllImages() {
+            const list = state.images.length > 0 ? state.images : [null];
+            const timestamp = new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14);
 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            showToast(`جاري تصدير وتنزيل (${list.length}) صور...`);
+
+            for (let i = 0; i < list.length; i++) {
+                renderWithImageObject(list[i]);
+                const dataUrl = canvas.toDataURL("image/png");
+                const a = document.createElement("a");
+                a.download = `news_${state.govId}_${i + 1}_${timestamp}.png`;
+                a.href = dataUrl;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // تأخير خفيف بين التنزيلات لضمان عدم حظر المتصفح للتنزيلات المتعددة
+                if (list.length > 1) {
+                    await new Promise(r => setTimeout(r, 260));
+                }
+            }
+
+            // استعادة المعاينة للصورة النشطة
+            render();
+            showToast(`✓ تم تنزيل جميع الصور (${list.length}) بنجاح!`);
+        }
+
+        // مشاركة الصور (صورة واحدة أو ألبوم كامل Carousel)
+        async function shareOrCopyImage() {
+            const list = state.images.length > 0 ? state.images : [null];
+
+            if (list.length === 1) {
+                renderWithImageObject(list[0]);
+                canvas.toBlob(async (blob) => {
+                    if (!blob) return;
+                    const file = new File([blob], `news_${state.govId}.png`, { type: "image/png" });
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: state.headline,
+                                text: state.headline
+                            });
+                            showToast("✓ تم فتح قائمة المشاركة!");
+                            return;
+                        } catch (e) {}
+                    }
+                    copyImageToClipboard();
+                });
+            } else {
+                // مشاركة ألبوم إنستغرام كامل لعدة صور معاً
+                showToast(`جاري تجهيز (${list.length}) صور للألبوم...`);
+                const files = [];
+                const timestamp = new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14);
+
+                for (let i = 0; i < list.length; i++) {
+                    renderWithImageObject(list[i]);
+                    const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+                    if (blob) {
+                        files.push(new File([blob], `news_${state.govId}_${i + 1}_${timestamp}.png`, { type: "image/png" }));
+                    }
+                }
+                render(); // استعادة المعاينة
+
+                if (navigator.canShare && navigator.canShare({ files: files })) {
                     try {
                         await navigator.share({
-                            files: [file],
+                            files: files,
                             title: state.headline,
                             text: state.headline
                         });
-                        showToast("✓ تم فتح قائمة المشاركة!");
+                        showToast("✓ تم فتح مشاركة ألبوم الصور!");
                         return;
                     } catch (e) {}
                 }
-                copyImageToClipboard();
-            });
+
+                // بديل إذا لم يكن تدعم مشاركة عدة ملفات: تنزيل الكل
+                downloadAllImages();
+            }
         }
 
         async function copyImageToClipboard() {
@@ -1119,20 +1430,8 @@
                     showToast("⚡ تم نسخ الصورة للحافظة! الصقها الآن (Ctrl+V) في إنستغرام أو واتساب");
                 });
             } catch (err) {
-                downloadImage();
+                downloadAllImages();
             }
-        }
-
-        function downloadImage() {
-            const dataUrl = canvas.toDataURL("image/png");
-            const a = document.createElement("a");
-            const timestamp = new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14);
-            a.download = `news_${state.govId}_${timestamp}.png`;
-            a.href = dataUrl;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showToast("⬇ تم تنزيل الصورة بدقة أصلية جاهزة للنشر!");
         }
 
         function showToast(msg) {
