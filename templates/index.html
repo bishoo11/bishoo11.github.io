@@ -638,6 +638,112 @@
             gap: 6px;
         }
 
+        /* Stage Carousel Controls (under the canvas) */
+        .stage-carousel-container {
+            width: 100%;
+            max-width: 520px;
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .stage-carousel-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-ui);
+            border-radius: 30px;
+            padding: 6px 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .carousel-nav-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-ui);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .carousel-nav-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.04);
+        }
+
+        .carousel-counter-badge {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 4px 12px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Stage Thumbnails Row */
+        .stage-thumbnails-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            max-width: 100%;
+            padding: 6px 4px;
+            scrollbar-width: thin;
+        }
+
+        .stage-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            background: #000;
+            transition: all 0.2s;
+        }
+
+        .stage-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .stage-thumb.active {
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .stage-thumb .thumb-badge {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+
         /* Sticky Mobile Bottom Bar */
         .mobile-bottom-bar {
             display: none;
@@ -861,6 +967,21 @@
         <!-- Settings Sidebar -->
         <div class="studio-sidebar">
             
+            <!-- 📱 أزرار الإجراء السريع للموبايل (Mobile 1-Tap Fast Actions) -->
+            <div class="mobile-fast-actions" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
+                <button type="button" class="action-btn" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; font-size: 0.92rem; font-weight: 800; padding: 12px; border-radius: 10px; justify-content: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); border: none; cursor: pointer;" onclick="smartPasteFromClipboard()">
+                    📋 استيراد فوري من الحافظة (لصق ذكي بنقرة واحدة)
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="action-btn" style="flex: 1; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-size: 0.8rem; font-weight: 700; padding: 9px; justify-content: center;" onclick="document.getElementById('hiddenFileInput').click()">
+                        📷 اختيار كل صور الخبر دفعة واحدة
+                    </button>
+                    <button type="button" class="action-btn" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-ui); color: #cbd5e1; font-size: 0.8rem; padding: 9px 12px;" onclick="toggleManualTextHelper()" title="لصق نص الخبر يدوياً">
+                        📝 نص يدوي
+                    </button>
+                </div>
+            </div>
+
             <!-- ⚡ الساحب والمستورد الذكي للأخبار (Post Downloader & Smart Importer) -->
             <div class="magic-importer-card">
                 <div class="importer-header">
@@ -1111,6 +1232,23 @@
                 <div class="canvas-hint">
                     <span>🖱 يمكنك سحب وتحريك الصورة داخل الإطار لتوسيطها</span>
                 </div>
+            </div>
+
+            <!-- شريط تقليب ومعاينة ألبوم الصور المباشر (Stage Carousel Toolbar) -->
+            <div class="stage-carousel-container" id="stageCarouselContainer" style="display: none;">
+                <div class="stage-carousel-toolbar">
+                    <button type="button" class="carousel-nav-btn" onclick="prevImage()" title="الصورة السابقة">
+                        ◀ الصورة السابقة
+                    </button>
+                    <div class="carousel-counter-badge" id="stageCounterBadge">
+                        📸 صورة <span id="currentImageNum">1</span> من <span id="totalImagesNum">1</span>
+                    </div>
+                    <button type="button" class="carousel-nav-btn" onclick="nextImage()" title="الصورة التالية">
+                        الصورة التالية ▶
+                    </button>
+                </div>
+                <!-- شريط مصغرات الصور أسفل الكانفاس مباشرة -->
+                <div class="stage-thumbnails-row" id="stageThumbnailsRow"></div>
             </div>
         </div>
     </div>
@@ -1474,8 +1612,27 @@
             document.getElementById("zoomVal").innerText = Math.round(z * 100) + "%";
         }
 
-        // تحديث شريط الثمبنيلز للألبوم
+        function nextImage() {
+            if (state.images.length <= 1) return;
+            state.activeImageIndex = (state.activeImageIndex + 1) % state.images.length;
+            updateThumbnailsUI();
+            syncZoomSlider();
+            render();
+            showToast(`📸 صورة (${state.activeImageIndex + 1} من ${state.images.length})`);
+        }
+
+        function prevImage() {
+            if (state.images.length <= 1) return;
+            state.activeImageIndex = (state.activeImageIndex - 1 + state.images.length) % state.images.length;
+            updateThumbnailsUI();
+            syncZoomSlider();
+            render();
+            showToast(`📸 صورة (${state.activeImageIndex + 1} من ${state.images.length})`);
+        }
+
+        // تحديث شريط الثمبنيلز للألبوم والكانفاس
         function updateThumbnailsUI() {
+            const count = state.images.length;
             const container = document.getElementById("thumbnailsContainer");
             const bar = document.getElementById("thumbnailsBar");
             const badge = document.getElementById("photoCountBadge");
@@ -1484,45 +1641,79 @@
             const mShare = document.getElementById("mobileShareText");
             const mDown = document.getElementById("mobileDownloadText");
 
-            const count = state.images.length;
+            // عناصر الكاروسيل على الكانفاس
+            const stageContainer = document.getElementById("stageCarouselContainer");
+            const stageRow = document.getElementById("stageThumbnailsRow");
+            const curNum = document.getElementById("currentImageNum");
+            const totNum = document.getElementById("totalImagesNum");
 
             if (count > 0) {
-                container.style.display = "block";
-                badge.innerText = `📸 تم رفع (${count}) صور لهذا الخبر`;
-                btnDown.innerText = count > 1 ? `⬇ تحميل الكل (${count} صور)` : "⬇ تحميل الصورة";
-                btnCopy.innerText = count > 1 ? `⚡ مشاركة الألبوم (${count})` : "⚡ نسخ للحافظة";
-                mDown.innerText = count > 1 ? `⬇ حفظ الكل (${count})` : "⬇ حفظ الصورة";
-                mShare.innerText = count > 1 ? `⚡ نشر الكل (${count})` : "⚡ مشاركة ونشر";
+                if (container) container.style.display = "block";
+                if (badge) badge.innerText = `📸 تم رفع (${count}) صور لهذا الخبر`;
+                if (btnDown) btnDown.innerText = count > 1 ? `⬇ تحميل الكل (${count} صور)` : "⬇ تحميل الصورة";
+                if (btnCopy) btnCopy.innerText = count > 1 ? `⚡ مشاركة الألبوم (${count})` : "⚡ نسخ للحافظة";
+                if (mDown) mDown.innerText = count > 1 ? `⬇ حفظ الكل (${count})` : "⬇ حفظ الصورة";
+                if (mShare) mShare.innerText = count > 1 ? `⚡ نشر الكل (${count})` : "⚡ مشاركة ونشر";
 
-                bar.innerHTML = "";
-                state.images.forEach((item, idx) => {
-                    const div = document.createElement("div");
-                    div.className = "thumb-item" + (idx === state.activeImageIndex ? " active" : "");
-                    div.onclick = () => setActiveImage(idx);
+                if (stageContainer) stageContainer.style.display = count > 1 ? "flex" : "none";
+                if (curNum) curNum.innerText = (state.activeImageIndex + 1);
+                if (totNum) totNum.innerText = count;
 
-                    const img = document.createElement("img");
-                    img.src = item.src;
-                    div.appendChild(img);
+                if (bar) {
+                    bar.innerHTML = "";
+                    state.images.forEach((item, idx) => {
+                        const div = document.createElement("div");
+                        div.className = "thumb-item" + (idx === state.activeImageIndex ? " active" : "");
+                        div.onclick = () => setActiveImage(idx);
 
-                    const num = document.createElement("span");
-                    num.className = "thumb-idx";
-                    num.innerText = `#${idx + 1}`;
-                    div.appendChild(num);
+                        const img = document.createElement("img");
+                        img.src = item.src;
+                        div.appendChild(img);
 
-                    const del = document.createElement("button");
-                    del.className = "thumb-del";
-                    del.innerHTML = "✕";
-                    del.onclick = (e) => removeImageAt(idx, e);
-                    div.appendChild(del);
+                        const num = document.createElement("span");
+                        num.className = "thumb-idx";
+                        num.innerText = `#${idx + 1}`;
+                        div.appendChild(num);
 
-                    bar.appendChild(div);
-                });
+                        const del = document.createElement("button");
+                        del.type = "button";
+                        del.className = "thumb-del";
+                        del.innerHTML = "&times;";
+                        del.title = "حذف هذه الصورة";
+                        del.onclick = (e) => removeImageAt(idx, e);
+                        div.appendChild(del);
+
+                        bar.appendChild(div);
+                    });
+                }
+
+                if (stageRow) {
+                    stageRow.innerHTML = "";
+                    state.images.forEach((item, idx) => {
+                        const t = document.createElement("div");
+                        t.className = "stage-thumb" + (idx === state.activeImageIndex ? " active" : "");
+                        t.onclick = () => setActiveImage(idx);
+
+                        const img = document.createElement("img");
+                        img.src = item.src;
+                        t.appendChild(img);
+
+                        const b = document.createElement("span");
+                        b.className = "thumb-badge";
+                        b.innerText = `${idx + 1}`;
+                        t.appendChild(b);
+
+                        stageRow.appendChild(t);
+                    });
+                }
+
             } else {
-                container.style.display = "none";
-                btnDown.innerText = "⬇ تحميل الصور";
-                btnCopy.innerText = "⚡ نسخ للحافظة";
-                mDown.innerText = "⬇ حفظ الصورة";
-                mShare.innerText = "⚡ مشاركة ونشر";
+                if (container) container.style.display = "none";
+                if (stageContainer) stageContainer.style.display = "none";
+                if (btnDown) btnDown.innerText = "⬇ تحميل الصور";
+                if (btnCopy) btnCopy.innerText = "⚡ نسخ للحافظة";
+                if (mDown) mDown.innerText = "⬇ حفظ الصورة";
+                if (mShare) mShare.innerText = "⚡ مشاركة ونشر";
             }
         }
 
@@ -1555,8 +1746,13 @@
         window.addEventListener("mousemove", (e) => moveDrag(e.clientX, e.clientY));
         window.addEventListener("mouseup", endDrag);
 
+        let touchStartX = 0;
+        let touchStartY = 0;
+
         canvas.addEventListener("touchstart", (e) => {
             if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
                 startDrag(e.touches[0].clientX, e.touches[0].clientY);
             }
         }, { passive: false });
@@ -1568,7 +1764,21 @@
             }
         }, { passive: false });
 
-        window.addEventListener("touchend", endDrag);
+        window.addEventListener("touchend", (e) => {
+            endDrag();
+            if (e.changedTouches && e.changedTouches.length === 1 && state.images.length > 1) {
+                const diffX = e.changedTouches[0].clientX - touchStartX;
+                const diffY = e.changedTouches[0].clientY - touchStartY;
+                // فحص حركة السحب الأفقية السريعة للتقليب بين الصور (Swipe)
+                if (Math.abs(diffX) > 55 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+                    if (diffX < 0) {
+                        nextImage();
+                    } else {
+                        prevImage();
+                    }
+                }
+            }
+        });
 
         // دالة الرسم العامة
         function render() {
@@ -2287,20 +2497,28 @@
                 }
             }
 
-            // 2. فصل العنوان الرئيسي عن تفاصيل الخبر
+            // 2. فصل العنوان الرئيسي عن المحتوى والتفاصيل بالكامل
             let lines = clean.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            
+            // إزالة أسطر الهاشتاجات أو الروابط الصرفة من بداية النص
+            while (lines.length > 0 && (lines[0].startsWith("http") || lines[0].startsWith("#"))) {
+                lines.shift();
+            }
+
             let headline = "";
             let body = "";
 
-            if (lines.length === 1) {
+            if (lines.length === 0) {
+                return null;
+            } else if (lines.length === 1) {
                 let text = lines[0];
-                let splitMatch = text.match(/^([^.:؛!؟\n]{10,80}[:.؛!؟])\s*(.*)$/);
+                let splitMatch = text.match(/^([^.:؛!؟\n]{10,85}[:.؛!؟])\s*(.*)$/);
                 if (splitMatch) {
                     headline = splitMatch[1].replace(/[:.؛!؟]$/, '').trim();
                     body = splitMatch[2].trim();
-                } else if (text.length > 75) {
+                } else if (text.length > 70) {
                     let cutPos = text.lastIndexOf(' ', 70);
-                    if (cutPos > 25) {
+                    if (cutPos > 20) {
                         headline = text.substring(0, cutPos).trim();
                         body = text.substring(cutPos).trim();
                     } else {
@@ -2312,16 +2530,22 @@
                     body = "";
                 }
             } else {
-                headline = lines[0];
-                let remainingLines = lines.slice(1).filter(l => !l.startsWith("http") && !l.match(/^#[^\s]+/));
-                body = remainingLines.join(" ");
+                // إذا كان السطر الأول مقدمة قصيرة (مثل عاجل أو بلدية الكويت) ندمجه مع السطر التالي كعنوان
+                if (lines[0].length < 24 && lines.length > 2) {
+                    headline = lines[0] + ": " + lines[1];
+                    let remaining = lines.slice(2).filter(l => !l.startsWith("http") && !l.match(/^#[^\s]+/));
+                    body = remaining.join("\n");
+                } else {
+                    headline = lines[0];
+                    let remaining = lines.slice(1).filter(l => !l.startsWith("http") && !l.match(/^#[^\s]+/));
+                    body = remaining.join("\n");
+                }
             }
 
-            // تنظيف البادئات الشائعة
+            // تنظيف البادئات الشائعة من العنوان
             headline = headline.replace(/^(عاجل|هام|خاص|كونا|تحديث|بالفيديو|بالصور)[\s|:ـ-]+/i, '').trim();
-            // تنظيف الهاشتاجات والروابط من المتن
-            body = body.replace(/#\S+/g, '').replace(/https?:\/\/\S+/g, '').trim();
-            body = body.replace(/\s+/g, ' ');
+            // تنظيف الروابط والهاشتاجات من المتن مع الحفاظ على الأسطر
+            body = body.replace(/https?:\/\/\S+/g, '').replace(/#\S+/g, '').trim();
 
             return {
                 governorateId: detectedGov,
