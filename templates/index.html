@@ -871,7 +871,7 @@
                     <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.7rem; padding: 2px 7px; border-radius: 6px;">تلقائي ⚡</span>
                 </div>
                 <div class="importer-desc">
-                    ضع رابط البوست (تويتر/X، إنستغرام، موقع إخباري) أو الصق النص، وهيسحب الصور ويفصل المانشيت عن التفاصيل ويحدد المحافظة لوحده!
+                    ضع رابط المنشور (سحب تلقائي كامل لروابط <strong>X/تويتر والمواقع الإخبارية</strong> ⚡ ولـ <strong>إنستغرام</strong> انسخ النص واضغط "📋 لصق ذكي" والصق الصور مباشرة بـ Ctrl+V أو بالسحب!).
                 </div>
                 <div class="importer-input-row">
                     <input type="url" id="postUrlInput" placeholder="ضع رابط البوست هنا (X/تويتر، خبر...)" dir="ltr">
@@ -1332,6 +1332,20 @@
             }
             if (newFiles.length) {
                 processUploadedFiles(newFiles);
+            }
+        });
+
+        // سحب وإفلات الصور مباشرة على الأستوديو (Drag & Drop)
+        window.addEventListener("dragover", (e) => {
+            e.preventDefault();
+        });
+        window.addEventListener("drop", (e) => {
+            e.preventDefault();
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+                const imgFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"));
+                if (imgFiles.length) {
+                    processUploadedFiles(imgFiles);
+                }
             }
         });
 
@@ -2369,6 +2383,15 @@
                 return;
             }
 
+            // إذا قام المستخدم بلصق نص الخبر في خانة الرابط
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                const parsed = smartParseNewsText(url);
+                applyParsedNews(parsed);
+                const govName = parsed.governorateId ? GOVERNORATES[parsed.governorateId].name : "الحالية";
+                showToast(`✓ تم تحليل نص الخبر وتعبئته بالقالب! المحافظة: ${govName}`);
+                return;
+            }
+
             const btn = document.getElementById("btnFetchPost");
             const statusEl = document.getElementById("importStatus");
             if (btn) btn.innerText = "⏳ سحب...";
@@ -2378,7 +2401,20 @@
             }
 
             try {
-                // 1. فحص روابط تويتر / X
+                // 1. فحص روابط إنستغرام (تتطلب نسخ الكابشن بسبب جدار حماية ميتا)
+                if (url.includes("instagram.com")) {
+                    const collapse = document.getElementById("manualTextCollapse");
+                    if (collapse) collapse.style.display = "block";
+                    const txt = document.getElementById("rawPostTextInput");
+                    if (txt) {
+                        txt.placeholder = "📌 إنستغرام محمي بجدار أمان: انسخ كابشن البوست واضغط '📋 لصق ذكي من الحافظة' لفرزه فوراً! وللصور اضغط Ctrl+V للصقها مباشرة في القالب كأنك في كانفا.";
+                        txt.focus();
+                    }
+                    showToast("📸 إنستغرام محمي: انسخ كابشن البوست واضغط '📋 لصق ذكي'");
+                    return;
+                }
+
+                // 2. فحص روابط تويتر / X (سحب تلقائي كامل للصور والنص)
                 const twitterMatch = url.match(/(?:twitter\.com|x\.com)\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)/i);
                 if (twitterMatch) {
                     const tweetId = twitterMatch[2];
