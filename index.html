@@ -168,6 +168,56 @@
             border-radius: 6px;
         }
 
+        /* Style Selector (Multi-Design Switcher) */
+        .style-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .style-card {
+            background: var(--bg-card);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 8px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .style-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .style-card.active {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+
+        .style-card .style-icon {
+            font-size: 1.25rem;
+        }
+
+        .style-card .style-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .style-card .style-desc {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
         /* 6 Governorates Grid */
         .gov-grid {
             display: grid;
@@ -723,9 +773,33 @@
         <!-- Settings Sidebar -->
         <div class="studio-sidebar">
             
-            <!-- 1. المحافظة -->
+            <!-- 1. شكل ونمط التصميم -->
             <div class="section-header">
-                <span>1. اختر المحافظة (قالب كانفا الرسمي)</span>
+                <span>1. شكل ونمط التصميم (Style)</span>
+                <span class="badge" id="currentStyleBadge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">قالب كانفا</span>
+            </div>
+
+            <div class="style-selector-grid" id="styleSelectorGrid">
+                <div class="style-card active" data-style="canva" onclick="selectStyle('canva')">
+                    <span class="style-icon">🎨</span>
+                    <span class="style-name">قالب كانفا الرسمي</span>
+                    <span class="style-desc">أخضر مع رق (طولي)</span>
+                </div>
+                <div class="style-card" data-style="modern" onclick="selectStyle('modern')">
+                    <span class="style-icon">📰</span>
+                    <span class="style-name">إخباري مودرن</span>
+                    <span class="style-desc">كحلي مع علم الكويت (1:1)</span>
+                </div>
+                <div class="style-card" data-style="portrait" onclick="selectStyle('portrait')">
+                    <span class="style-icon">📸</span>
+                    <span class="style-name">إنستغرام كارد</span>
+                    <span class="style-desc">هوية وشريط رسمي (4:5)</span>
+                </div>
+            </div>
+
+            <!-- 2. المحافظة -->
+            <div class="section-header">
+                <span>2. اختر المحافظة</span>
                 <span class="badge" id="currentGovBadge">العاصمة</span>
             </div>
 
@@ -963,8 +1037,9 @@
             jahra: { name: "محافظة الجهراء", color: "#16a34a" }
         };
 
-        // حالة التطبيق مع دعم تعدد الصور (Multi-Image Carousel)
+        // حالة التطبيق مع دعم تعدد الصور وتعدد الأنماط والتصاميم
         let state = {
+            designStyle: "canva", // "canva", "modern", "portrait"
             govId: "capital",
             headline: "محافظة العاصمة: تدشين ممشى رياضي متكامل وخدمات نموذجية جديدة",
             body: "المشروع يمتد على مساحة واسعة لخدمة أهالي المنطقة مع توفير كافة سبل الراحة والمساحات الخضراء.",
@@ -990,6 +1065,25 @@
 
         const canvas = document.getElementById("studioCanvas");
         const ctx = canvas.getContext("2d");
+
+        const STYLES_INFO = {
+            canva: { name: "قالب كانفا الرسمي", badge: "قالب كانفا" },
+            modern: { name: "التصميم الإخباري المودرن", badge: "إخباري مودرن (1:1)" },
+            portrait: { name: "إنستغرام كارد عمودي", badge: "إنستغرام (4:5)" }
+        };
+
+        function selectStyle(styleId) {
+            state.designStyle = styleId;
+            document.querySelectorAll("#styleSelectorGrid .style-card").forEach(c => {
+                c.classList.toggle("active", c.dataset.style === styleId);
+            });
+            const badge = document.getElementById("currentStyleBadge");
+            if (badge && STYLES_INFO[styleId]) {
+                badge.innerText = STYLES_INFO[styleId].badge;
+            }
+            render();
+            showToast(`✓ تم تفعيل: ${STYLES_INFO[styleId].name}`);
+        }
 
         function initDate() {
             const now = new Date();
@@ -1320,8 +1414,21 @@
             renderWithImageObject(cur);
         }
 
-        // رسم الكانفاس لصورة محددة
+        // دالة التوزيع لرسم التصميم بناءً على الستايل المختار
         function renderWithImageObject(imgObj) {
+            if (state.designStyle === "modern") {
+                renderModernDesign(imgObj);
+            } else if (state.designStyle === "portrait") {
+                renderPortraitDesign(imgObj);
+            } else {
+                renderCanvaDesign(imgObj);
+            }
+        }
+
+        // ========================================================
+        // 1. قالب كانفا الرسمي للمحافظات (Canva Official 1024×1536)
+        // ========================================================
+        function renderCanvaDesign(imgObj) {
             const w = 1024;
             const h = 1536;
 
@@ -1436,6 +1543,318 @@
                     by += lineHBody;
                 });
             }
+        }
+
+        // ========================================================
+        // 2. التصميم الإخباري المودرن (Modern Navy Square 1080×1080)
+        // ========================================================
+        function renderModernDesign(imgObj) {
+            const w = 1080;
+            const h = 1080;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+
+            // الخلفية الكحلية الإخبارية الداكنة المتدرجة
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, "#0b1424");
+            bgGrad.addColorStop(0.5, "#070c17");
+            bgGrad.addColorStop(1, "#03060c");
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // شبكة تقنية خفيفة (Subtle Tech Grid)
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.025)";
+            ctx.lineWidth = 1;
+            for (let x = 40; x < w; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 40; y < h; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            // علم الكويت في أعلى التصميم (3 شرائح ملونة)
+            ctx.fillStyle = "#007a3d"; ctx.fillRect(0, 0, 360, 8);
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(360, 0, 360, 8);
+            ctx.fillStyle = "#ce1126"; ctx.fillRect(720, 0, 360, 8);
+
+            const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+
+            // الشريط العلوي (الهيدر)
+            // خط المحافظة اللوني
+            ctx.fillStyle = govInfo.color;
+            ctx.fillRect(w - 50 - 6, 26, 6, 36);
+
+            // اسم المحافظة
+            ctx.font = "900 32px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(govInfo.name, w - 50 - 18, 44);
+
+            // بادج "عاجل" أو "خبر رسمي" على اليسار
+            ctx.save();
+            ctx.fillStyle = "#ce1126";
+            roundRect(ctx, 50, 26, 92, 36, 8, true, false);
+            ctx.font = "800 20px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("عاجل", 50 + 92 / 2, 44);
+            ctx.restore();
+
+            // خط فاصل علوي رفيع
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, 78);
+            ctx.lineTo(w - 50, 78);
+            ctx.stroke();
+
+            // إطار الصورة
+            const px = 50;
+            const py = 96;
+            const pw = 980;
+            const ph = 540;
+
+            ctx.save();
+            ctx.beginPath();
+            roundRect(ctx, px, py, pw, ph, 14, false, false);
+            ctx.clip();
+
+            if (imgObj && imgObj.img) {
+                const img = imgObj.img;
+                const zoom = imgObj.zoom || 1.0;
+                const panX = imgObj.panX || 0;
+                const panY = imgObj.panY || 0;
+
+                const scale = Math.max(pw / img.width, ph / img.height) * zoom;
+                const dw = img.width * scale;
+                const dh = img.height * scale;
+                const dx = px + (pw - dw) / 2 + panX;
+                const dy = py + (ph - dh) / 2 + panY;
+                ctx.drawImage(img, dx, dy, dw, dh);
+            } else {
+                ctx.fillStyle = "#1e293b";
+                ctx.fillRect(px, py, pw, ph);
+            }
+            ctx.restore();
+
+            // إطار خارجي حول الصورة
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+            ctx.lineWidth = 2;
+            roundRect(ctx, px, py, pw, ph, 14, false, true);
+
+            // بادج التاريخ المدمج فوق الصورة
+            if (state.date) {
+                ctx.save();
+                ctx.fillStyle = "rgba(7, 12, 23, 0.88)";
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+                ctx.lineWidth = 1;
+                roundRect(ctx, px + pw - 215, py + ph - 48, 200, 36, 8, true, true);
+                ctx.font = "700 20px 'Cairo'";
+                ctx.fillStyle = "#ffffff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(`📅 ${state.date}`, px + pw - 215 + 100, py + ph - 48 + 18);
+                ctx.restore();
+            }
+
+            // كتابة العنوان المانشيت (محاذاة يمين أنيقة)
+            const titleFontSize = Math.min(state.titleSize, 40);
+            const titleFont = `800 ${titleFontSize}px 'Cairo'`;
+            const titleLines = wrapText(state.headline, 920, titleFont).slice(0, 3);
+            const lineHTitle = titleFontSize + 14;
+            let curY = 675;
+
+            // خط جانبي لوني مميز بارتفاع العنوان
+            ctx.fillStyle = govInfo.color;
+            ctx.fillRect(w - 50 - 5, curY + 2, 5, titleLines.length * lineHTitle - 10);
+
+            ctx.font = titleFont;
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "top";
+            titleLines.forEach(line => {
+                ctx.fillText(line, w - 50 - 20, curY);
+                curY += lineHTitle;
+            });
+
+            // كتابة التفاصيل والمتن
+            if (state.showBody && state.body) {
+                const bodyFontSize = Math.min(state.bodySize, 24);
+                const bodyFont = `600 ${bodyFontSize}px 'Cairo'`;
+                const bodyLines = wrapText(state.body, 920, bodyFont).slice(0, 3);
+                const lineHBody = bodyFontSize + 12;
+                ctx.font = bodyFont;
+                ctx.fillStyle = "#94a3b8";
+                ctx.textAlign = "right";
+                curY += 8;
+                bodyLines.forEach(line => {
+                    ctx.fillText(line, w - 50 - 20, curY);
+                    curY += lineHBody;
+                });
+            }
+
+            // الفوتر السفلي
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, 1018);
+            ctx.lineTo(w - 50, 1018);
+            ctx.stroke();
+
+            ctx.font = "700 20px 'Cairo'";
+            ctx.fillStyle = "#64748b";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText("أخبار محافظات الكويت 🇰🇼", w - 50, 1045);
+
+            ctx.textAlign = "left";
+            ctx.fillText(`الكويت | ${state.date || ""}`, 50, 1045);
+        }
+
+        // ========================================================
+        // 3. ستايل إنستغرام كارد عمودي (Portrait Instagram 1080×1350)
+        // ========================================================
+        function renderPortraitDesign(imgObj) {
+            const w = 1080;
+            const h = 1350;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+
+            const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+
+            // صورة الخبر تحتل الجزء العلوي بالكامل
+            const pw = w;
+            const ph = 820;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, 0, pw, ph);
+            ctx.clip();
+
+            if (imgObj && imgObj.img) {
+                const img = imgObj.img;
+                const zoom = imgObj.zoom || 1.0;
+                const panX = imgObj.panX || 0;
+                const panY = imgObj.panY || 0;
+
+                const scale = Math.max(pw / img.width, ph / img.height) * zoom;
+                const dw = img.width * scale;
+                const dh = img.height * scale;
+                const dx = (pw - dw) / 2 + panX;
+                const dy = (ph - dh) / 2 + panY;
+                ctx.drawImage(img, dx, dy, dw, dh);
+            } else {
+                ctx.fillStyle = "#1e293b";
+                ctx.fillRect(0, 0, pw, ph);
+            }
+            ctx.restore();
+
+            // شريط علم الكويت بالأعلى
+            ctx.fillStyle = "#007a3d"; ctx.fillRect(0, 0, 360, 8);
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(360, 0, 360, 8);
+            ctx.fillStyle = "#ce1126"; ctx.fillRect(720, 0, 360, 8);
+
+            // بادج المحافظة الطافي على الصورة (Top-Right)
+            ctx.save();
+            ctx.fillStyle = "rgba(10, 15, 25, 0.85)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, w - 280, 24, 250, 44, 22, true, true);
+
+            ctx.fillStyle = govInfo.color;
+            ctx.beginPath();
+            ctx.arc(w - 280 + 250 - 24, 46, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.font = "800 22px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(govInfo.name, w - 280 + 250 - 40, 46);
+            ctx.restore();
+
+            // بادج التاريخ المدمج أسفل يمين الصورة
+            if (state.date) {
+                ctx.save();
+                ctx.fillStyle = "rgba(10, 15, 25, 0.85)";
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+                ctx.lineWidth = 1;
+                roundRect(ctx, w - 230, ph - 50, 210, 38, 10, true, true);
+                ctx.font = "700 20px 'Cairo'";
+                ctx.fillStyle = "#ffffff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(`📅 ${state.date}`, w - 230 + 105, ph - 50 + 19);
+                ctx.restore();
+            }
+
+            // بطاقة النص السفلية (Dark Luxury Card)
+            const cardY = ph;
+            const cardH = h - ph;
+            const cardGrad = ctx.createLinearGradient(0, cardY, 0, h);
+            cardGrad.addColorStop(0, "#0a1120");
+            cardGrad.addColorStop(1, "#03060c");
+            ctx.fillStyle = cardGrad;
+            ctx.fillRect(0, cardY, w, cardH);
+
+            // خط ذهبي لوني فاصل
+            ctx.fillStyle = govInfo.color;
+            ctx.fillRect(0, cardY, w, 4);
+
+            // كتابة العنوان (متوسط وكبير)
+            const titleFontSize = Math.min(state.titleSize, 40);
+            const titleFont = `800 ${titleFontSize}px 'Cairo'`;
+            const titleLines = wrapText(state.headline, 980, titleFont).slice(0, 3);
+            const lineHTitle = titleFontSize + 14;
+            let curY = cardY + 35;
+
+            ctx.font = titleFont;
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            titleLines.forEach(line => {
+                ctx.fillText(line, w / 2, curY);
+                curY += lineHTitle;
+            });
+
+            // كتابة التفاصيل
+            if (state.showBody && state.body) {
+                curY += 12;
+                const bodyFontSize = Math.min(state.bodySize, 24);
+                const bodyFont = `600 ${bodyFontSize}px 'Cairo'`;
+                const bodyLines = wrapText(state.body, 980, bodyFont).slice(0, 3);
+                const lineHBody = bodyFontSize + 12;
+                ctx.font = bodyFont;
+                ctx.fillStyle = "#cbd5e1";
+                ctx.textAlign = "center";
+                bodyLines.forEach(line => {
+                    ctx.fillText(line, w / 2, curY);
+                    curY += lineHBody;
+                });
+            }
+
+            // الشريط السفلي الرسمي وحساب التواصل
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(50, h - 65);
+            ctx.lineTo(w - 50, h - 65);
+            ctx.stroke();
+
+            ctx.font = "800 22px 'Cairo'";
+            ctx.fillStyle = govInfo.color;
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText("@gov6kw", w - 60, h - 35);
+
+            ctx.font = "600 18px 'Cairo'";
+            ctx.fillStyle = "#64748b";
+            ctx.textAlign = "left";
+            ctx.fillText("أخبار محافظات الكويت | تغطية شاملة", 60, h - 35);
         }
 
         function wrapText(text, maxWidth, font) {
