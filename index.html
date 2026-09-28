@@ -710,17 +710,11 @@
 
         <!-- أزرار الإجراء السريع (Desktop) -->
         <div class="actions-area header-desktop-only">
-            <button class="action-btn btn-insta" onclick="publishToInstagram()" title="نشر تلقائي ومباشر على حساب إنستغرام">
-                <span id="btnInstaText">🚀 نشر إنستغرام</span>
-            </button>
-            <button class="action-btn btn-copy" onclick="shareOrCopyImage()" title="نسخ الصورة للحافظة أو مشاركة الألبوم">
-                <span id="btnCopyText">⚡ نسخ للحافظة</span>
+            <button class="action-btn btn-insta" onclick="shareOrCopyImage()" title="مشاركة الصور مباشرة إلى إنستغرام مع نسخ النص تلقائياً">
+                <span id="btnShareText">⚡ مشاركة لإنستغرام</span>
             </button>
             <button class="action-btn btn-download" onclick="downloadAllImages()" title="تحميل الصور بدقة أصلية">
-                <span id="btnDownloadText">⬇ تحميل الصور</span>
-            </button>
-            <button class="action-btn" style="background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 8px 10px;" onclick="openInstaSettings()" title="إعدادات النشر على إنستغرام">
-                ⚙️
+                <span id="btnDownloadText">⬇ حفظ الصور</span>
             </button>
         </div>
     </header>
@@ -901,17 +895,11 @@
 
     <!-- Sticky Mobile Bottom Bar -->
     <div class="mobile-bottom-bar">
-        <button class="action-btn btn-insta" onclick="publishToInstagram()" style="flex: 1.2;">
-            <span id="mobileInstaText">🚀 نشر إنستغرام</span>
+        <button class="action-btn btn-insta" onclick="shareOrCopyImage()" style="flex: 2; padding: 13px 16px; font-size: 0.96rem;">
+            <span id="mobileShareText">⚡ مشاركة لإنستغرام (Share)</span>
         </button>
-        <button class="action-btn btn-copy" onclick="shareOrCopyImage()">
-            <span id="mobileShareText">⚡ مشاركة</span>
-        </button>
-        <button class="action-btn btn-download" onclick="downloadAllImages()">
-            <span id="mobileDownloadText">⬇ حفظ</span>
-        </button>
-        <button class="action-btn" style="background: rgba(255,255,255,0.1); color: #cbd5e1; flex: 0 0 42px; padding: 0; justify-content: center;" onclick="openInstaSettings()" title="إعدادات إنستغرام">
-            ⚙️
+        <button class="action-btn btn-download" onclick="downloadAllImages()" style="flex: 1; padding: 13px; font-size: 0.88rem;">
+            <span id="mobileDownloadText">⬇ حفظ الصور</span>
         </button>
     </div>
 
@@ -1518,34 +1506,47 @@
             showToast(`✓ تم تنزيل جميع الصور (${list.length}) بنجاح!`);
         }
 
-        // مشاركة الصور (صورة واحدة أو ألبوم كامل Carousel)
+        // مشاركة الصور (صورة واحدة أو ألبوم كامل Carousel) مباشرة لإنستغرام
         async function shareOrCopyImage() {
             const list = state.images.length > 0 ? state.images : [null];
+            const govName = GOVERNORATES[state.govId] ? GOVERNORATES[state.govId].name : state.govId;
+            const fullCaption = `${state.headline}\n\n${state.body ? state.body + "\n\n" : ""}📅 ${state.date || ""}\n🇰🇼 #الكويت #${govName.replace(/\s+/g, "_")}`;
+
+            // نسخ النص والهاشتاجات إلى الحافظة تلقائياً لكي يلصقها المستخدم بضغطة واحدة في إنستغرام
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(fullCaption);
+                }
+            } catch (e) {}
+
+            const timestamp = new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14);
 
             if (list.length === 1) {
                 renderWithImageObject(list[0]);
                 canvas.toBlob(async (blob) => {
                     if (!blob) return;
-                    const file = new File([blob], `news_${state.govId}.png`, { type: "image/png" });
+                    const file = new File([blob], `news_${state.govId}_${timestamp}.png`, { type: "image/png" });
 
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({
                                 files: [file],
                                 title: state.headline,
-                                text: state.headline
+                                text: fullCaption
                             });
-                            showToast("✓ تم فتح قائمة المشاركة!");
+                            showToast("✓ تم نسخ النص وفتح إنستغرام!");
                             return;
-                        } catch (e) {}
+                        } catch (e) {
+                            if (e.name !== 'AbortError') {
+                                console.log(e);
+                            }
+                        }
                     }
-                    copyImageToClipboard();
-                });
+                    copyImageToClipboard(fullCaption);
+                }, "image/png");
             } else {
-                // مشاركة ألبوم إنستغرام كامل لعدة صور معاً
-                showToast(`جاري تجهيز (${list.length}) صور للألبوم...`);
+                showToast(`جاري تجهيز (${list.length}) صور لألبوم إنستغرام...`);
                 const files = [];
-                const timestamp = new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14);
 
                 for (let i = 0; i < list.length; i++) {
                     renderWithImageObject(list[i]);
@@ -1561,25 +1562,29 @@
                         await navigator.share({
                             files: files,
                             title: state.headline,
-                            text: state.headline
+                            text: fullCaption
                         });
-                        showToast("✓ تم فتح مشاركة ألبوم الصور!");
+                        showToast("✓ تم نسخ النص وفتح مشاركة ألبوم إنستغرام!");
                         return;
-                    } catch (e) {}
+                    } catch (e) {
+                        if (e.name !== 'AbortError') {
+                            console.log(e);
+                        }
+                    }
                 }
 
-                // بديل إذا لم يكن تدعم مشاركة عدة ملفات: تنزيل الكل
+                // بديل إذا لم يكن المتصفح يدعم مشاركة عدة ملفات: نسخ وتنزيل الكل
                 downloadAllImages();
             }
         }
 
-        async function copyImageToClipboard() {
+        async function copyImageToClipboard(captionText) {
             try {
                 canvas.toBlob(async (blob) => {
                     if (!blob) return;
                     const item = new ClipboardItem({ "image/png": blob });
                     await navigator.clipboard.write([item]);
-                    showToast("⚡ تم نسخ الصورة للحافظة! الصقها الآن (Ctrl+V) في إنستغرام أو واتساب");
+                    showToast("⚡ تم نسخ الصورة والنص! الصقهما الآن (Ctrl+V) في إنستغرام");
                 });
             } catch (err) {
                 downloadAllImages();
