@@ -967,76 +967,78 @@
         <!-- Settings Sidebar -->
         <div class="studio-sidebar">
             
-            <!-- 📱 أزرار الإجراء السريع للموبايل (Mobile 1-Tap Fast Actions) -->
-            <div class="mobile-fast-actions" style="margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px;">
-                <button type="button" class="action-btn" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; font-size: 0.92rem; font-weight: 800; padding: 12px; border-radius: 10px; justify-content: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); border: none; cursor: pointer;" onclick="smartPasteFromClipboard()">
-                    📋 استيراد فوري من الحافظة (لصق ذكي بنقرة واحدة)
-                </button>
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" class="action-btn" style="flex: 1; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-size: 0.8rem; font-weight: 700; padding: 9px; justify-content: center;" onclick="document.getElementById('hiddenFileInput').click()">
-                        📷 اختيار كل صور الخبر دفعة واحدة
-                    </button>
-                    <button type="button" class="action-btn" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-ui); color: #cbd5e1; font-size: 0.8rem; padding: 9px 12px;" onclick="toggleManualTextHelper()" title="لصق نص الخبر يدوياً">
-                        📝 نص يدوي
-                    </button>
-                </div>
-            </div>
-
-            <!-- ⚡ الساحب والمستورد الذكي للأخبار (Post Downloader & Smart Importer) -->
-            <div class="magic-importer-card">
-                <div class="importer-header">
-                    <div class="importer-title">
+            <!-- ⚡ صندوق الاستيراد الموحد السريع (الصورة + المحتوى معاً) -->
+            <div class="unified-importer-card" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); border: 1.5px solid rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 14px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
                         <span class="pulse-dot"></span>
-                        <span>الساحب والمستورد الذكي للأخبار</span>
+                        <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">استيراد الخبر (الصورة + المحتوى معاً)</span>
                     </div>
-                    <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.7rem; padding: 2px 7px; border-radius: 6px;">تلقائي ⚡</span>
+                    <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700;">فوري ⚡</span>
                 </div>
-                <div class="importer-desc">
-                    ضع رابط المنشور (سحب تلقائي كامل لروابط <strong>X/تويتر والمواقع الإخبارية</strong> ⚡ ولـ <strong>إنستغرام</strong> انسخ النص واضغط "📋 لصق ذكي" والصق الصور مباشرة بـ Ctrl+V أو بالسحب!).
+                <div style="font-size: 0.73rem; color: #94a3b8; margin-bottom: 10px; line-height: 1.4;">
+                    اسحب صورة الخبر والنص تلقائياً من الرابط (يتم سحب <strong>صورة البوست فقط بدقة أصلية</strong>)، أو استخدم الحافظة السريعة بلمسة واحدة.
                 </div>
+
+                <!-- 1. شريط الرابط السريع (سحب صورة البوست الحقيقية فقط + النص) -->
                 <div class="importer-input-row">
-                    <input type="url" id="postUrlInput" placeholder="ضع رابط البوست هنا (X/تويتر، خبر...)" dir="ltr">
+                    <input type="url" id="postUrlInput" placeholder="ضع رابط الخبر أو التغريدة (سحب تلقائي دقيق)" dir="ltr">
                     <button type="button" class="btn-import" id="btnFetchPost" onclick="fetchPostFromUrl()">
                         ⚡ سحب
-                    </button>
-                </div>
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                    <button type="button" class="action-btn" style="flex: 1; font-size: 0.75rem; padding: 6px 10px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; justify-content: center;" onclick="smartPasteFromClipboard()">
-                        📋 لصق ذكي من الحافظة
-                    </button>
-                    <button type="button" class="action-btn" style="font-size: 0.75rem; padding: 6px 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border-ui); color: #cbd5e1; justify-content: center;" onclick="toggleManualTextHelper()" title="لصق نص الخبر يدوياً">
-                        📝 نص يدوي
-                    </button>
-                </div>
-                <div id="manualTextCollapse" style="display: none; margin-top: 10px;">
-                    <textarea id="rawPostTextInput" rows="3" placeholder="انسخ والصق نص الخبر كاملاً هنا، وسيقوم النظام تلقائياً بتحديد العنوان، المتن، والمحافظة..." style="width: 100%; background: #090d14; border: 1px solid var(--border-ui); border-radius: 8px; color: #fff; padding: 8px; font-size: 0.8rem;"></textarea>
-                    <button type="button" class="btn-import" style="width: 100%; margin-top: 6px; padding: 6px; font-size: 0.78rem;" onclick="parseAndApplyRawText()">
-                        ✨ تحليل النص وفرزه في القالب فوراً
                     </button>
                 </div>
                 <div id="importStatus" style="display: none; font-size: 0.74rem; color: #38bdf8; margin-top: 6px; text-align: center;">
                     ⏳ جاري استخراج البيانات والصور...
                 </div>
 
-                <!-- زر السحب التلقائي السريع من إنستغرام بضغطة واحدة -->
-                <div class="bookmarklet-box" style="margin-top: 12px; background: rgba(225, 29, 72, 0.12); border: 1px dashed rgba(244, 63, 94, 0.45); border-radius: 8px; padding: 10px;">
-                    <div style="font-size: 0.78rem; font-weight: 800; color: #fb7185; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
-                        <span>🚀 الساحب التلقائي لإنستغرام (1-Click)</span>
-                        <span style="font-size: 0.68rem; background: rgba(244, 63, 94, 0.2); color: #fda4af; padding: 1px 6px; border-radius: 4px;">تلقائي 100%</span>
+                <div style="display: flex; align-items: center; gap: 8px; margin: 10px 0; color: #64748b; font-size: 0.72rem;">
+                    <span style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+                    <span>أو إجراءات الحافظة السريعة</span>
+                    <span style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+                </div>
+
+                <!-- 2. زر الحافظة الشامل (صورة أو نص أو رابط) -->
+                <button type="button" class="action-btn" style="width: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; font-size: 0.92rem; font-weight: 800; padding: 12px; border-radius: 10px; justify-content: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); border: none; cursor: pointer; margin-bottom: 8px;" onclick="smartPasteFromClipboard()">
+                    📋 لصق ذكي من الحافظة (نص / رابط / صورة)
+                </button>
+
+                <!-- 3. زر اختيار صورة البوست + زر النص اليدوي -->
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="action-btn" style="flex: 1; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-size: 0.8rem; font-weight: 700; padding: 9px; justify-content: center;" onclick="document.getElementById('hiddenFileInput').click()">
+                        📷 اختيار صورة البوست من الجهاز
+                    </button>
+                    <button type="button" class="action-btn" style="background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-ui); color: #cbd5e1; font-size: 0.8rem; padding: 9px 12px;" onclick="toggleManualTextHelper()" title="لصق أو كتابة نص يدوي">
+                        📝 نص يدوي
+                    </button>
+                </div>
+
+                <!-- صندوق النص اليدوي القابل للطي -->
+                <div id="manualTextCollapse" style="display: none; margin-top: 10px;">
+                    <textarea id="rawPostTextInput" rows="3" placeholder="انسخ والصق نص الخبر كاملاً هنا، وسيقوم النظام فوراً بتحديد العنوان والمانشيت والمتن والمحافظة..." style="width: 100%; background: #090d14; border: 1px solid var(--border-ui); border-radius: 8px; color: #fff; padding: 8px; font-size: 0.8rem;"></textarea>
+                    <button type="button" class="btn-import" style="width: 100%; margin-top: 6px; padding: 7px; font-size: 0.8rem; font-weight: 700;" onclick="parseAndApplyRawText()">
+                        ✨ تحليل وفرز النص في القالب فوراً
+                    </button>
+                </div>
+
+                <!-- زر الإشارة المرجعية لإنستغرام على الكمبيوتر -->
+                <div class="bookmarklet-box" style="margin-top: 12px; background: rgba(225, 29, 72, 0.1); border: 1px dashed rgba(244, 63, 94, 0.4); border-radius: 8px; padding: 9px;">
+                    <div style="font-size: 0.76rem; font-weight: 800; color: #fb7185; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🚀 زر السحب التلقائي لإنستغرام</span>
+                        <span style="font-size: 0.65rem; background: rgba(244, 63, 94, 0.2); color: #fda4af; padding: 1px 6px; border-radius: 4px;">تلقائي ⚡</span>
                     </div>
-                    <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 8px;">
-                        اسحب هذا الزر بالماوس إلى <strong>شريط الإشارات (المفضلة Bookmarks)</strong> أعلى متصفحك مرة واحدة.. وبأي وقت وأنت فاتح بوست إنستغرام، اضغط عليه فقط وهيسحب كل الصور والنص والعنوان للأستوديو لوحده!
+                    <div style="font-size: 0.7rem; color: #cbd5e1; line-height: 1.35; margin-bottom: 6px;">
+                        اسحب هذا الزر إلى <strong>شريط المفضلة Bookmarks</strong> بمتصفحك.. وبأي وقت وأنت فاتح بوست إنستغرام اضغط عليه فقط ليسحب صورة البوست والنص فوراً!
                     </div>
                     <div style="display: flex; gap: 6px;">
-                        <a href="javascript:(function(){try{var caption='';var h1=document.querySelector('article h1, h1');if(h1&&h1.innerText){caption=h1.innerText;}else{var spans=Array.from(document.querySelectorAll('article span[dir=\x22auto\x22]'));if(spans.length){spans.sort(function(a,b){return b.innerText.length-a.innerText.length;});caption=spans[0].innerText;}}var images=[];document.querySelectorAll('article img, main img').forEach(function(img){if(img.width<120&&img.height<120)return;if(img.alt&&img.alt.indexOf('profile picture')!==-1)return;var src=img.src;if(img.srcset){var items=img.srcset.split(',');var last=items[items.length-1].trim().split(' ')[0];if(last)src=last;}if(src&&images.indexOf(src)===-1){images.push(src);}});if(!caption&&images.length===0){alert('يرجى فتح بوست إنستغرام أولاً!');return;}var payload=encodeURIComponent(JSON.stringify({text:caption,images:images}));window.open('https://bishoo11.github.io/#import='+payload,'_blank');}catch(e){alert('خطأ أثناء السحب: '+e.message);}})();" 
+                        <a href="javascript:(function(){try{var caption='';var h1=document.querySelector('article h1, h1');if(h1&&h1.innerText&&h1.innerText.length>10){caption=h1.innerText;}else{var spans=Array.from(document.querySelectorAll('article span[dir=\x22auto\x22], article span'));if(spans.length){spans.sort(function(a,b){return b.innerText.length-a.innerText.length;});caption=spans[0].innerText;}}var images=[];var article=document.querySelector('article')||document;article.querySelectorAll('img').forEach(function(img){if(img.naturalWidth>0&&img.naturalWidth<250)return;if(img.width<250&&img.height<250)return;if(img.alt&&(img.alt.indexOf('profile')!==-1||img.alt.indexOf('الملف الشخصي')!==-1))return;var src=img.src;if(img.srcset){var items=img.srcset.split(',');var last=items[items.length-1].trim().split(' ')[0];if(last)src=last;}if(src&&images.indexOf(src)===-1)images.push(src);});if(!caption&&images.length===0){alert('يرجى فتح بوست إنستغرام أولاً!');return;}var payload=encodeURIComponent(JSON.stringify({text:caption,images:images}));window.open('https://bishoo11.github.io/#import='+payload,'_blank');}catch(e){alert('خطأ أثناء السحب: '+e.message);}})();" 
                            class="action-btn" 
-                           style="flex: 1; justify-content: center; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: #fff; font-size: 0.78rem; font-weight: 800; text-decoration: none; padding: 7px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); cursor: grab;"
+                           style="flex: 1; justify-content: center; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: #fff; font-size: 0.75rem; font-weight: 800; text-decoration: none; padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); cursor: grab;"
                            title="اسحب هذا الزر بالماوس إلى شريط المفضلة أعلى متصفحك"
                            onclick="event.preventDefault(); showToast('📌 اسحب هذا الزر بالماوس إلى شريط المفضلة أعلى متصفحك!');">
-                            ⚡ اسحبني للمفضلة: سحب للأستوديو
+                            ⚡ اسحبني للمفضلة
                         </a>
                         <button type="button" class="tool-btn" style="padding: 6px 10px; font-size: 0.72rem; color: #f43f5e;" onclick="copyBookmarkletCode()" title="نسخ كود الأداة">
-                            📋 نسخ
+                            📋 نسخ الكود
                         </button>
                     </div>
                 </div>
@@ -1135,7 +1137,7 @@
 
                 <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between;">
                     <label style="font-size: 0.76rem; color: var(--gold); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 700;">
-                        <input type="checkbox" id="autoDownloadCheck" checked> تنزيل تلقائي فوري لجميع الصور عند الرفع
+                        <input type="checkbox" id="autoDownloadCheck"> تنزيل تلقائي فوري لجميع الصور عند الرفع
                     </label>
                 </div>
 
@@ -1482,17 +1484,47 @@
             arrow.innerText = el.classList.contains("open") ? "▲" : "▼";
         }
 
-        // لصق الصور من الحافظة (يدعم صورة أو عدة صور)
+        // لصق ذكي شامل من الحافظة (يدعم لصق الصور مباشرة أو الروابط أو نصوص الأخبار)
         window.addEventListener("paste", (e) => {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            const newFiles = [];
-            for (let item of items) {
-                if (item.type.indexOf("image") !== -1) {
-                    newFiles.push(item.getAsFile());
+            const clipboardData = e.clipboardData || e.originalEvent?.clipboardData;
+            if (!clipboardData) return;
+
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
+            const isTyping = (activeTag === "input" || activeTag === "textarea");
+
+            // 1. استخراج أي صور في الحافظة
+            const imageItems = Array.from(clipboardData.items).filter(item => item.type && item.type.indexOf("image") !== -1);
+            if (imageItems.length > 0) {
+                e.preventDefault();
+                const newFiles = imageItems.map(it => it.getAsFile()).filter(Boolean);
+                if (newFiles.length) {
+                    processUploadedFiles(newFiles, true); // استبدال فوري لصورة الخبر
+                    showToast(`✓ تم لصق (${newFiles.length}) صور في التصميم مباشرة!`);
                 }
+                return;
             }
-            if (newFiles.length) {
-                processUploadedFiles(newFiles);
+
+            // 2. إذا لم يكن المستخدم يكتب داخل مربع نص، وقام باللصق على الصفحة:
+            if (!isTyping) {
+                const pastedText = clipboardData.getData("text");
+                if (pastedText && pastedText.trim()) {
+                    const trimmed = pastedText.trim();
+                    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+                        e.preventDefault();
+                        const urlInput = document.getElementById("postUrlInput");
+                        if (urlInput) urlInput.value = trimmed;
+                        showToast("⏳ تم اكتشاف رابط، جاري سحب صورة البوست والمحتوى...");
+                        fetchPostFromUrl(trimmed);
+                    } else if (trimmed.length > 20) {
+                        e.preventDefault();
+                        const parsed = smartParseNewsText(trimmed);
+                        if (parsed) {
+                            applyParsedNews(parsed);
+                            const govName = parsed.governorateId ? GOVERNORATES[parsed.governorateId].name : "العاصمة";
+                            showToast(`✓ تم استيراد وفرز الخبر تلقائياً! المحافظة: ${govName}`);
+                        }
+                    }
+                }
             }
         });
 
@@ -1505,22 +1537,27 @@
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
                 const imgFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"));
                 if (imgFiles.length) {
-                    processUploadedFiles(imgFiles);
+                    processUploadedFiles(imgFiles, true);
+                    showToast(`✓ تم إفلات (${imgFiles.length}) صور ووضعها بالقالب!`);
                 }
             }
         });
 
-        // اختيار عدة ملفات صور معاً
+        // اختيار ملفات صور من الجهاز
         function handleFileSelect(e) {
             const files = Array.from(e.target.files);
             if (files.length) {
-                processUploadedFiles(files);
+                processUploadedFiles(files, true);
             }
         }
 
         // معالجة وإضافة الصور لقائمة الألبوم
-        function processUploadedFiles(fileList) {
+        function processUploadedFiles(fileList, replaceExisting = false) {
             let loadedCount = 0;
+            if (replaceExisting) {
+                state.images = [];
+                state.activeImageIndex = 0;
+            }
             const initialLen = state.images.length;
 
             fileList.forEach((file) => {
@@ -1538,15 +1575,14 @@
                         loadedCount++;
 
                         if (loadedCount === fileList.length) {
-                            state.activeImageIndex = initialLen; // التركيز على أول صورة جديدة
+                            state.activeImageIndex = replaceExisting ? 0 : initialLen;
                             updateThumbnailsUI();
                             syncZoomSlider();
                             render();
 
-                            showToast(`✓ تم إضافة (${fileList.length}) صور للألبوم!`);
+                            showToast(`✓ تم تعيين صورة الخبر بنجاح!`);
 
-                            // تحقق من التنزيل التلقائي إذا كان الخيار مفعلاً
-                            const autoDownload = document.getElementById("autoDownloadCheck").checked;
+                            const autoDownload = document.getElementById("autoDownloadCheck")?.checked;
                             if (autoDownload && fileList.length > 0) {
                                 setTimeout(() => {
                                     downloadAllImages();
@@ -2594,27 +2630,61 @@
 
         async function smartPasteFromClipboard() {
             try {
-                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                if (!navigator.clipboard) {
                     toggleManualTextHelper();
                     showToast("ℹ️ الصق نص الخبر في الخانة اليدوية أدناه");
                     return;
                 }
-                const clipText = await navigator.clipboard.readText();
-                if (!clipText || !clipText.trim()) {
-                    showToast("⚠️ الحافظة فارغة! انسخ رابطاً أو نصاً أولاً");
-                    return;
+
+                let handledImage = false;
+                // 1. فحص إذا كانت الحافظة تحتوي على صورة منسوخة أو لقطة شاشة
+                if (navigator.clipboard.read) {
+                    try {
+                        const items = await navigator.clipboard.read();
+                        for (const item of items) {
+                            for (const type of item.types) {
+                                if (type.startsWith("image/")) {
+                                    const blob = await item.getType(type);
+                                    processUploadedFiles([blob], true); // استبدال فوري لصورة القالب
+                                    handledImage = true;
+                                    break;
+                                }
+                            }
+                            if (handledImage) break;
+                        }
+                    } catch (imgErr) {}
                 }
-                const trimmed = clipText.trim();
-                if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-                    document.getElementById("postUrlInput").value = trimmed;
-                    showToast("⚡ تم التعرف على رابط باللصق، جاري السحب...");
-                    fetchPostFromUrl(trimmed);
+
+                // 2. قراءة النص من الحافظة
+                if (navigator.clipboard.readText) {
+                    const clipText = await navigator.clipboard.readText();
+                    if (clipText && clipText.trim()) {
+                        const trimmed = clipText.trim();
+                        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+                            document.getElementById("postUrlInput").value = trimmed;
+                            showToast("⏳ جاري سحب صورة البوست الحقيقية والمحتوى من الرابط...");
+                            await fetchPostFromUrl(trimmed);
+                            return;
+                        } else {
+                            document.getElementById("rawPostTextInput").value = trimmed;
+                            const parsed = smartParseNewsText(trimmed);
+                            if (parsed) applyParsedNews(parsed);
+                            const govName = (parsed && parsed.governorateId) ? GOVERNORATES[parsed.governorateId].name : "العاصمة";
+                            if (handledImage) {
+                                showToast(`✓ تم استيراد صورة الخبر والنص معاً! المحافظة: ${govName}`);
+                            } else {
+                                showToast(`✓ تم تحليل الخبر من الحافظة! المحافظة: ${govName}`);
+                            }
+                            return;
+                        }
+                    }
+                }
+
+                if (handledImage) {
+                    showToast("✓ تم لصق صورة الخبر في القالب بنجاح!");
                 } else {
-                    document.getElementById("rawPostTextInput").value = trimmed;
-                    const parsed = smartParseNewsText(trimmed);
-                    applyParsedNews(parsed);
-                    const govName = parsed.governorateId ? GOVERNORATES[parsed.governorateId].name : "الحالية";
-                    showToast(`✓ تم تحليل الخبر من الحافظة! المحافظة: ${govName}`);
+                    toggleManualTextHelper();
+                    showToast("⚠️ الحافظة فارغة! انسخ نص الخبر أو رابطه ثم اضغط مجدداً");
                 }
             } catch (e) {
                 console.warn("Clipboard access error:", e);
@@ -2633,8 +2703,8 @@
             // إذا قام المستخدم بلصق نص الخبر في خانة الرابط
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 const parsed = smartParseNewsText(url);
-                applyParsedNews(parsed);
-                const govName = parsed.governorateId ? GOVERNORATES[parsed.governorateId].name : "الحالية";
+                if (parsed) applyParsedNews(parsed);
+                const govName = (parsed && parsed.governorateId) ? GOVERNORATES[parsed.governorateId].name : "العاصمة";
                 showToast(`✓ تم تحليل نص الخبر وتعبئته بالقالب! المحافظة: ${govName}`);
                 return;
             }
@@ -2644,24 +2714,24 @@
             if (btn) btn.innerText = "⏳ سحب...";
             if (statusEl) {
                 statusEl.style.display = "block";
-                statusEl.innerText = "⏳ جاري استخراج الصور والنص من الرابط...";
+                statusEl.innerText = "⏳ جاري استخراج صورة البوست فقط والنص من الرابط...";
             }
 
             try {
-                // 1. فحص روابط إنستغرام (تتطلب نسخ الكابشن بسبب جدار حماية ميتا)
+                // 1. فحص روابط إنستغرام
                 if (url.includes("instagram.com")) {
                     const collapse = document.getElementById("manualTextCollapse");
                     if (collapse) collapse.style.display = "block";
                     const txt = document.getElementById("rawPostTextInput");
                     if (txt) {
-                        txt.placeholder = "📌 إنستغرام محمي بجدار أمان: انسخ كابشن البوست واضغط '📋 لصق ذكي من الحافظة' لفرزه فوراً! وللصور اضغط Ctrl+V للصقها مباشرة في القالب كأنك في كانفا.";
+                        txt.placeholder = "📌 إنستغرام: انسخ كابشن البوست واضغط '📋 لصق ذكي' لفرزه فوراً! وللصور اضغط Ctrl+V للصقها مباشرة أو اخترها من جهازك.";
                         txt.focus();
                     }
-                    showToast("📸 إنستغرام محمي: انسخ كابشن البوست واضغط '📋 لصق ذكي'");
+                    showToast("📸 إنستغرام: انسخ كابشن البوست واضغط '📋 لصق ذكي' (أو استخدم زر المفضلة)");
                     return;
                 }
 
-                // 2. فحص روابط تويتر / X (سحب تلقائي كامل للصور والنص)
+                // 2. فحص روابط تويتر / X (سحب تلقائي كامل للصور الحقيقية فقط والنص)
                 const twitterMatch = url.match(/(?:twitter\.com|x\.com)\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)/i);
                 if (twitterMatch) {
                     const tweetId = twitterMatch[2];
@@ -2687,7 +2757,7 @@
                     if (tweetData) {
                         const rawText = tweetData.text || "";
                         const parsed = smartParseNewsText(rawText);
-                        applyParsedNews(parsed);
+                        if (parsed) applyParsedNews(parsed);
 
                         let imageUrls = [];
                         if (tweetData.media_extended && tweetData.media_extended.length > 0) {
@@ -2699,17 +2769,17 @@
                         }
 
                         if (imageUrls.length > 0) {
-                            if (statusEl) statusEl.innerText = `⏳ جاري تنزيل (${imageUrls.length}) صور ووضعها بالقالب...`;
-                            await loadImagesFromUrls(imageUrls);
-                            showToast(`✓ تم سحب الخبر و (${imageUrls.length}) صور تلقائياً!`);
+                            if (statusEl) statusEl.innerText = `⏳ جاري تنزيل (${imageUrls.length}) صور خاصة بالتغريدة...`;
+                            await loadImagesFromUrls(imageUrls, true);
+                            showToast(`✓ تم سحب التغريدة و (${imageUrls.length}) صور بنجاح!`);
                         } else {
-                            showToast("✓ تم استخراج وتعبئة نص الخبر وتحديد المحافظة!");
+                            showToast("✓ تم استخراج وتعبئة نص التغريدة وتحديد المحافظة!");
                         }
                         return;
                     }
                 }
 
-                // 2. مواقع أخرى (إنستغرام، مواقع الأخبار كونا، الراي، القبس، إلخ)
+                // 3. مواقع الأخبار والمنصات (كونا، الراي، القبس، الأنباء، الجريدة، عكاظ، إلخ)
                 let htmlText = "";
                 try {
                     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
@@ -2731,38 +2801,66 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, "text/html");
 
-                    const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content") ||
-                                    doc.querySelector('meta[name="twitter:title"]')?.getAttribute("content") ||
-                                    doc.querySelector('title')?.innerText || "";
+                    // 1. استخراج العنوان الحقيقي للمنشور أو المقال (تجاوز عناوين الموقع)
+                    let articleTitle = "";
+                    const h1El = doc.querySelector('article h1, .entry-title, .post-title, .article-title, h1');
+                    if (h1El && h1El.innerText && h1El.innerText.trim().length > 5) {
+                        articleTitle = h1El.innerText.trim();
+                    } else {
+                        articleTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content") ||
+                                       doc.querySelector('meta[name="twitter:title"]')?.getAttribute("content") ||
+                                       doc.querySelector('title')?.innerText || "";
+                    }
+                    // إزالة اسم الجريدة أو الموقع من نهاية العنوان
+                    articleTitle = articleTitle.split(/\s*[-–—|]\s*(?:جريدة|صحيفة|وكالة|موقع|شبكة|أخبار|كونا|الراي|القبس|الأنباء|الجريدة|Alrai|KUNA)/i)[0].trim();
 
-                    const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute("content") ||
-                                   doc.querySelector('meta[name="description"]')?.getAttribute("content") ||
-                                   doc.querySelector('meta[name="twitter:description"]')?.getAttribute("content") || "";
+                    // 2. استخراج متن وتفاصيل الخبر من فقرات المقال فقط (وليس السايدبار أو الفوتر)
+                    let articleBody = "";
+                    const paragraphs = Array.from(doc.querySelectorAll('article p, .entry-content p, .article-body p, .story-body p, .post-content p'))
+                        .map(p => p.innerText.trim())
+                        .filter(t => t.length > 25 && !t.includes("حقوق النشر") && !t.includes("اشترك في") && !t.includes("تابعنا على") && !t.includes("جميع الحقوق"));
 
-                    const imagesFound = [];
+                    if (paragraphs.length > 0) {
+                        articleBody = paragraphs.slice(0, 5).join("\n");
+                    } else {
+                        articleBody = doc.querySelector('meta[property="og:description"]')?.getAttribute("content") ||
+                                      doc.querySelector('meta[name="description"]')?.getAttribute("content") ||
+                                      doc.querySelector('meta[name="twitter:description"]')?.getAttribute("content") || "";
+                    }
+
+                    // 3. استخراج صورة المنشور فقط بدقة أصلية (صورة البوست فقط وليس كل صور الصفحة!)
+                    const targetImages = [];
                     const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute("content") ||
-                                    doc.querySelector('meta[name="twitter:image"]')?.getAttribute("content");
-                    if (ogImage) imagesFound.push(ogImage);
+                                    doc.querySelector('meta[name="twitter:image"]')?.getAttribute("content") ||
+                                    doc.querySelector('meta[property="og:image:secure_url"]')?.getAttribute("content");
 
-                    doc.querySelectorAll('article img, .post-content img, .entry-content img, main img').forEach(img => {
-                        const src = img.getAttribute("src") || img.getAttribute("data-src");
-                        if (src && !src.includes("logo") && !src.includes("icon") && !src.includes("avatar")) {
-                            try {
-                                const absoluteUrl = new URL(src, url).href;
-                                if (!imagesFound.includes(absoluteUrl)) imagesFound.push(absoluteUrl);
-                            } catch (e) {}
+                    if (ogImage && !ogImage.toLowerCase().includes("logo") && !ogImage.toLowerCase().includes("default") && !ogImage.toLowerCase().includes("placeholder") && !ogImage.toLowerCase().includes("avatar")) {
+                        try {
+                            targetImages.push(new URL(ogImage, url).href);
+                        } catch (e) {
+                            targetImages.push(ogImage);
                         }
-                    });
+                    }
 
-                    const fullRaw = (ogTitle + "\n" + ogDesc).trim();
+                    // إذا لم توجد صورة og:image نبحث عن صورة الغلاف الرئيسية في المقال فقط
+                    if (targetImages.length === 0) {
+                        const leadImg = doc.querySelector('article figure img, .lead-image img, .featured-image img, .post-thumbnail img, article header img');
+                        if (leadImg) {
+                            const src = leadImg.getAttribute("src") || leadImg.getAttribute("data-src");
+                            if (src && !src.includes("logo") && !src.includes("icon") && !src.includes("avatar")) {
+                                try { targetImages.push(new URL(src, url).href); } catch(e) { targetImages.push(src); }
+                            }
+                        }
+                    }
+
+                    const fullRaw = (articleTitle + "\n" + articleBody).trim();
                     const parsed = smartParseNewsText(fullRaw);
                     if (parsed) applyParsedNews(parsed);
 
-                    if (imagesFound.length > 0) {
-                        const targetImages = imagesFound.slice(0, 4);
-                        if (statusEl) statusEl.innerText = `⏳ جاري تنزيل (${targetImages.length}) صور للألبوم...`;
-                        await loadImagesFromUrls(targetImages);
-                        showToast(`✓ تم سحب محتوى الخبر و (${targetImages.length}) صور!`);
+                    if (targetImages.length > 0) {
+                        if (statusEl) statusEl.innerText = "⏳ جاري تنزيل صورة الخبر الأصلية...";
+                        await loadImagesFromUrls(targetImages, true); // replaceExisting = true (يستبدل القديمة ولا يسحب غيرها)
+                        showToast("✓ تم سحب صورة البوست الحقيقية والمحتوى كاملاً!");
                     } else {
                         showToast("✓ تم استخراج وتعبئة عنوان وتفاصيل الخبر!");
                     }
@@ -2783,7 +2881,11 @@
             }
         }
 
-        async function loadImagesFromUrls(urls) {
+        async function loadImagesFromUrls(urls, replaceExisting = true) {
+            if (replaceExisting) {
+                state.images = [];
+                state.activeImageIndex = 0;
+            }
             const initialLen = state.images.length;
             let loadedCount = 0;
 
@@ -2843,7 +2945,7 @@
             }
 
             if (loadedCount > 0) {
-                state.activeImageIndex = initialLen;
+                state.activeImageIndex = replaceExisting ? 0 : initialLen;
                 updateThumbnailsUI();
                 syncZoomSlider();
                 render();
@@ -2881,6 +2983,31 @@
 
         async function checkUrlImport() {
             try {
+                // 1. فحص مشاركة الروابط والنصوص من تطبيقات الموبايل (Web Share Target)
+                if (window.location.search) {
+                    const params = new URLSearchParams(window.location.search);
+                    const sUrl = params.get("url");
+                    const sText = params.get("text");
+                    const sTitle = params.get("title");
+
+                    if (sUrl && (sUrl.startsWith("http://") || sUrl.startsWith("https://"))) {
+                        const urlInput = document.getElementById("postUrlInput");
+                        if (urlInput) urlInput.value = sUrl;
+                        showToast("⏳ جاري استيراد المنشور المشارك...");
+                        fetchPostFromUrl(sUrl);
+                    } else if (sText || sTitle) {
+                        const fullText = (sTitle ? sTitle + "\n" : "") + (sText || "");
+                        const parsed = smartParseNewsText(fullText);
+                        if (parsed) applyParsedNews(parsed);
+                        showToast("✓ تم استيراد وفرز الخبر المشارك من الموبايل!");
+                    }
+
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState(null, "", window.location.pathname);
+                    }
+                }
+
+                // 2. فحص استيراد الهاش المباشر من إنستغرام عبر زر المفضلة
                 let hash = window.location.hash;
                 if (hash && hash.startsWith("#import=")) {
                     const rawJson = decodeURIComponent(hash.substring(8));
@@ -2893,7 +3020,7 @@
 
                     if (data.images && data.images.length > 0) {
                         showToast(`⏳ جاري تحميل (${data.images.length}) صور مسحوبة من إنستغرام...`);
-                        await loadImagesFromUrls(data.images);
+                        await loadImagesFromUrls(data.images, true);
                         showToast(`✓ تم سحب محتوى الخبر و (${data.images.length}) صور تلقائياً من إنستغرام! 🚀`);
                     } else {
                         showToast("✓ تم سحب وفرز نص الخبر وعنوانه بنجاح!");
