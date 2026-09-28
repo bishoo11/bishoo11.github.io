@@ -896,6 +896,29 @@
                 <div id="importStatus" style="display: none; font-size: 0.74rem; color: #38bdf8; margin-top: 6px; text-align: center;">
                     ⏳ جاري استخراج البيانات والصور...
                 </div>
+
+                <!-- زر السحب التلقائي السريع من إنستغرام بضغطة واحدة -->
+                <div class="bookmarklet-box" style="margin-top: 12px; background: rgba(225, 29, 72, 0.12); border: 1px dashed rgba(244, 63, 94, 0.45); border-radius: 8px; padding: 10px;">
+                    <div style="font-size: 0.78rem; font-weight: 800; color: #fb7185; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🚀 الساحب التلقائي لإنستغرام (1-Click)</span>
+                        <span style="font-size: 0.68rem; background: rgba(244, 63, 94, 0.2); color: #fda4af; padding: 1px 6px; border-radius: 4px;">تلقائي 100%</span>
+                    </div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 8px;">
+                        اسحب هذا الزر بالماوس إلى <strong>شريط الإشارات (المفضلة Bookmarks)</strong> أعلى متصفحك مرة واحدة.. وبأي وقت وأنت فاتح بوست إنستغرام، اضغط عليه فقط وهيسحب كل الصور والنص والعنوان للأستوديو لوحده!
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <a href="javascript:(function(){try{var caption='';var h1=document.querySelector('article h1, h1');if(h1&&h1.innerText){caption=h1.innerText;}else{var spans=Array.from(document.querySelectorAll('article span[dir=\x22auto\x22]'));if(spans.length){spans.sort(function(a,b){return b.innerText.length-a.innerText.length;});caption=spans[0].innerText;}}var images=[];document.querySelectorAll('article img, main img').forEach(function(img){if(img.width<120&&img.height<120)return;if(img.alt&&img.alt.indexOf('profile picture')!==-1)return;var src=img.src;if(img.srcset){var items=img.srcset.split(',');var last=items[items.length-1].trim().split(' ')[0];if(last)src=last;}if(src&&images.indexOf(src)===-1){images.push(src);}});if(!caption&&images.length===0){alert('يرجى فتح بوست إنستغرام أولاً!');return;}var payload=encodeURIComponent(JSON.stringify({text:caption,images:images}));window.open('https://bishoo11.github.io/#import='+payload,'_blank');}catch(e){alert('خطأ أثناء السحب: '+e.message);}})();" 
+                           class="action-btn" 
+                           style="flex: 1; justify-content: center; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: #fff; font-size: 0.78rem; font-weight: 800; text-decoration: none; padding: 7px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); cursor: grab;"
+                           title="اسحب هذا الزر بالماوس إلى شريط المفضلة أعلى متصفحك"
+                           onclick="event.preventDefault(); showToast('📌 اسحب هذا الزر بالماوس إلى شريط المفضلة أعلى متصفحك!');">
+                            ⚡ اسحبني للمفضلة: سحب للأستوديو
+                        </a>
+                        <button type="button" class="tool-btn" style="padding: 6px 10px; font-size: 0.72rem; color: #f43f5e;" onclick="copyBookmarkletCode()" title="نسخ كود الأداة">
+                            📋 نسخ
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- 1. شكل ونمط التصميم -->
@@ -2619,8 +2642,52 @@
             }, 3500);
         }
 
+        function copyBookmarkletCode() {
+            const code = `javascript:(function(){try{var caption='';var h1=document.querySelector('article h1, h1');if(h1&&h1.innerText){caption=h1.innerText;}else{var spans=Array.from(document.querySelectorAll('article span[dir="auto"]'));if(spans.length){spans.sort(function(a,b){return b.innerText.length-a.innerText.length;});caption=spans[0].innerText;}}var images=[];document.querySelectorAll('article img, main img').forEach(function(img){if(img.width<120&&img.height<120)return;if(img.alt&&img.alt.indexOf('profile picture')!==-1)return;var src=img.src;if(img.srcset){var items=img.srcset.split(',');var last=items[items.length-1].trim().split(' ')[0];if(last)src=last;}if(src&&images.indexOf(src)===-1){images.push(src);}});if(!caption&&images.length===0){alert('يرجى فتح بوست إنستغرام أولاً!');return;}var payload=encodeURIComponent(JSON.stringify({text:caption,images:images}));window.open('https://bishoo11.github.io/#import='+payload,'_blank');}catch(e){alert('خطأ أثناء السحب: '+e.message);}})();`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showToast("✓ تم نسخ كود السحب! احفظه في المفضلة لديك");
+                }).catch(() => {
+                    showToast("📌 اسحب الزر بالماوس إلى شريط المفضلة أعلى متصفحك");
+                });
+            } else {
+                showToast("📌 اسحب الزر بالماوس إلى شريط المفضلة أعلى متصفحك");
+            }
+        }
+
+        async function checkUrlImport() {
+            try {
+                let hash = window.location.hash;
+                if (hash && hash.startsWith("#import=")) {
+                    const rawJson = decodeURIComponent(hash.substring(8));
+                    const data = JSON.parse(rawJson);
+
+                    if (data.text) {
+                        const parsed = smartParseNewsText(data.text);
+                        applyParsedNews(parsed);
+                    }
+
+                    if (data.images && data.images.length > 0) {
+                        showToast(`⏳ جاري تحميل (${data.images.length}) صور مسحوبة من إنستغرام...`);
+                        await loadImagesFromUrls(data.images);
+                        showToast(`✓ تم سحب محتوى الخبر و (${data.images.length}) صور تلقائياً من إنستغرام! 🚀`);
+                    } else {
+                        showToast("✓ تم سحب وفرز نص الخبر وعنوانه بنجاح!");
+                    }
+
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState(null, "", window.location.pathname);
+                    }
+                }
+            } catch (err) {
+                console.error("Error processing import hash:", err);
+            }
+        }
+        window.addEventListener("hashchange", checkUrlImport);
+
         window.addEventListener("DOMContentLoaded", async () => {
             initDate();
+            checkUrlImport();
             await document.fonts.ready;
             preloadAllCanvaTemplates();
             loadSampleImage();
