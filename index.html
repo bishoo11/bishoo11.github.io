@@ -1161,13 +1161,25 @@
             </div>
 
             <div class="input-group">
-                <label for="headlineInput">عنوان الخبر الرئيسي (المانشيت):</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label for="headlineInput">عنوان الخبر الرئيسي (المانشيت):</label>
+                    <button type="button" class="tool-btn" style="color: #38bdf8; font-size: 0.72rem; padding: 2px 7px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;" onclick="renewHeadlineSuggestion()" title="تجديد واقتراح صياغة أخرى للعنوان">
+                        ✨ تجديد العنوان
+                    </button>
+                </div>
                 <textarea id="headlineInput" rows="2" placeholder="اكتب عنوان الخبر الرئيسي..." oninput="onTextChange()">محافظة العاصمة: تدشين ممشى رياضي متكامل وخدمات نموذجية جديدة</textarea>
+                <div id="headlineSuggestionsBox"></div>
             </div>
 
             <div class="input-group">
-                <label for="bodyInput">تفاصيل أو ملخص الخبر (اختياري):</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label for="bodyInput">تفاصيل أو ملخص الخبر (اختياري):</label>
+                    <button type="button" class="tool-btn" style="color: #38bdf8; font-size: 0.72rem; padding: 2px 7px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;" onclick="renewBodySuggestion()" title="تجديد وتلخيص الوصف">
+                        ✨ تلخيص/تجديد الوصف
+                    </button>
+                </div>
                 <textarea id="bodyInput" rows="2" placeholder="اكتب تفاصيل مختصرة تظهر أسفل العنوان..." oninput="onTextChange()">المشروع يمتد على مساحة واسعة لخدمة أهالي المنطقة مع توفير كافة سبل الراحة والمساحات الخضراء.</textarea>
+                <div id="bodySuggestionsBox"></div>
             </div>
 
             <div class="input-group">
@@ -1347,7 +1359,10 @@
             images: [],
             activeImageIndex: 0,
             canvaTemplates: {},
-            calendarIcon: null
+            calendarIcon: null,
+            rawFullText: "",
+            headlineSuggestions: [],
+            bodySuggestions: []
         };
 
         const canvas = document.getElementById("studioCanvas");
@@ -2621,6 +2636,9 @@
             }
             initDate();
             render();
+            if (state.rawFullText) {
+                updateSuggestionsUI(state.rawFullText, state.govId);
+            }
         }
 
         function toggleManualTextHelper() {
@@ -2639,11 +2657,173 @@
                 fetchPostFromUrl(trimmed);
                 return;
             }
+            state.rawFullText = trimmed;
             const parsed = smartParseNewsText(trimmed);
             if (parsed) {
                 applyParsedNews(parsed);
+                updateSuggestionsUI(trimmed, parsed.governorateId);
                 const govName = parsed.governorateId ? GOVERNORATES[parsed.governorateId].name : "العاصمة";
-                showToast(`✓ تم فرز العنوان والمحتوى والمحافظة: ${govName}`);
+                showToast(`✓ تم تحليل النص وتوليد مقترحات العنوان والوصف! المحافظة: ${govName}`);
+            }
+        }
+
+        function generateHeadlineSuggestions(rawText, govId) {
+            if (!rawText || !rawText.trim()) return [];
+            const clean = rawText.replace(/https?:\/\/\S+/g, '').replace(/#\S+/g, '').trim();
+            const lines = clean.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 5);
+            const govName = (govId && GOVERNORATES[govId]) ? GOVERNORATES[govId].name : "الكويت";
+            const govShort = (govId && GOVERNORATES[govId]) ? GOVERNORATES[govId].name.replace("محافظة ", "") : "";
+
+            let list = [];
+
+            // 1. الاقتراح المباشر القياسي
+            let p = smartParseNewsText(clean);
+            if (p && p.headline) {
+                list.push(p.headline);
+                if (govShort && !p.headline.includes(govShort)) {
+                    list.push(`محافظة ${govShort}: ${p.headline}`);
+                }
+            }
+
+            // 2. صياغة عاجل أو مانشيت مقتضب
+            if (lines.length > 0) {
+                let first = lines[0].split(/[.:؛!؟]/)[0].trim();
+                first = first.replace(/^(عاجل|هام|خاص|كونا|تحديث|بالفيديو|بالصور)[\s|:ـ-]+/i, '').trim();
+                if (first.length > 15 && first.length < 80 && !list.includes(first)) {
+                    list.push(first);
+                    list.push(`عاجل | ${first}`);
+                }
+            }
+
+            // 3. صياغة مبنية على الأفعال والمشاريع من متن الخبر
+            for (const line of lines.slice(1, 4)) {
+                let match = line.match(/^([^.:؛!؟]{20,80})/);
+                if (match && !list.includes(match[1].trim())) {
+                    list.push(match[1].trim());
+                    break;
+                }
+            }
+
+            return [...new Set(list)].slice(0, 4);
+        }
+
+        function generateBodySuggestions(rawText) {
+            if (!rawText || !rawText.trim()) return [];
+            const clean = rawText.replace(/https?:\/\/\S+/g, '').replace(/#\S+/g, '').trim();
+            let sentences = clean.split(/[.؛!؟\n]+/).map(s => s.trim()).filter(s => s.length > 20 && !s.match(/^(حقوق النشر|اشترك|تابعنا|المصدر)/));
+
+            let list = [];
+
+            // 1. ملخص سطرين مركز
+            if (sentences.length >= 2) {
+                list.push(sentences.slice(1, 3).join(". ") + ".");
+            } else if (sentences.length === 1) {
+                list.push(sentences[0]);
+            }
+
+            // 2. نقاط ملخصة سريعة
+            if (sentences.length >= 2) {
+                let bullets = sentences.slice(1, 4).map(s => `• ${s}`).join("\n");
+                list.push(bullets);
+            }
+
+            // 3. ملخص موجز للخبر كاملاً
+            if (clean.length > 50) {
+                let summ = clean.substring(0, 180).trim();
+                let lastSp = summ.lastIndexOf(' ');
+                if (lastSp > 80) summ = summ.substring(0, lastSp) + "...";
+                list.push(summ);
+            }
+
+            return [...new Set(list)].slice(0, 3);
+        }
+
+        function updateSuggestionsUI(rawText, govId) {
+            state.rawFullText = rawText || state.rawFullText;
+            const headlines = generateHeadlineSuggestions(state.rawFullText, govId || state.govId);
+            const bodies = generateBodySuggestions(state.rawFullText);
+            state.headlineSuggestions = headlines;
+            state.bodySuggestions = bodies;
+
+            const hBox = document.getElementById("headlineSuggestionsBox");
+            if (hBox) {
+                if (headlines.length > 0) {
+                    let html = '<div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; margin-top: 5px; margin-bottom: 3px;">✨ صياغات مقترحة للعنوان (اضغط لاختيار صياغة):</div><div style="display: flex; flex-direction: column; gap: 4px;">';
+                    headlines.forEach((h, i) => {
+                        html += `<button type="button" onclick="applyHeadlineSuggestion('${escapeJs(h)}')" style="text-align: right; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 8px; color: #e0f2fe; font-size: 0.76rem; cursor: pointer; font-family: 'Cairo', sans-serif;"><span style="color: #38bdf8; font-weight: 800;">#${i+1}</span> ${escapeHtml(h)}</button>`;
+                    });
+                    html += '</div>';
+                    hBox.innerHTML = html;
+                } else {
+                    hBox.innerHTML = '';
+                }
+            }
+
+            const bBox = document.getElementById("bodySuggestionsBox");
+            if (bBox) {
+                if (bodies.length > 0) {
+                    let html = '<div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; margin-top: 5px; margin-bottom: 3px;">✨ صياغات وتلخيصات مقترحة للوصف:</div><div style="display: flex; flex-direction: column; gap: 4px;">';
+                    bodies.forEach((b, i) => {
+                        const preview = b.length > 100 ? b.substring(0, 100) + '...' : b;
+                        html += `<button type="button" onclick="applyBodySuggestion('${escapeJs(b)}')" style="text-align: right; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 8px; color: #cbd5e1; font-size: 0.73rem; cursor: pointer; font-family: 'Cairo', sans-serif; white-space: pre-line;"><span style="color: #38bdf8; font-weight: 800;">نمط #${i+1}:</span> ${escapeHtml(preview)}</button>`;
+                    });
+                    html += '</div>';
+                    bBox.innerHTML = html;
+                } else {
+                    bBox.innerHTML = '';
+                }
+            }
+        }
+
+        function escapeJs(str) {
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function applyHeadlineSuggestion(text) {
+            state.headline = text;
+            const el = document.getElementById("headlineInput");
+            if (el) el.value = text;
+            render();
+            showToast("✓ تم تحديث وتجديد العنوان بالقالب!");
+        }
+
+        function applyBodySuggestion(text) {
+            state.body = text;
+            const el = document.getElementById("bodyInput");
+            if (el) el.value = text;
+            render();
+            showToast("✓ تم تحديث وتلخيص الوصف بالقالب!");
+        }
+
+        function renewHeadlineSuggestion() {
+            if (!state.rawFullText) {
+                state.rawFullText = state.headline + "\n" + state.body;
+            }
+            updateSuggestionsUI(state.rawFullText, state.govId);
+            if (state.headlineSuggestions && state.headlineSuggestions.length > 1) {
+                const curIdx = state.headlineSuggestions.indexOf(state.headline);
+                const nextIdx = (curIdx + 1) % state.headlineSuggestions.length;
+                applyHeadlineSuggestion(state.headlineSuggestions[nextIdx]);
+            } else {
+                showToast("ℹ️ الصق نص الخبر أولاً لإنشاء مقترحات جديدة");
+            }
+        }
+
+        function renewBodySuggestion() {
+            if (!state.rawFullText) {
+                state.rawFullText = state.headline + "\n" + state.body;
+            }
+            updateSuggestionsUI(state.rawFullText, state.govId);
+            if (state.bodySuggestions && state.bodySuggestions.length > 1) {
+                const curIdx = state.bodySuggestions.indexOf(state.body);
+                const nextIdx = (curIdx + 1) % state.bodySuggestions.length;
+                applyBodySuggestion(state.bodySuggestions[nextIdx]);
+            } else {
+                showToast("ℹ️ الصق نص الخبر أولاً لإنشاء مقترحات جديدة");
             }
         }
 
@@ -2751,14 +2931,12 @@
             try {
                 // 1. فحص روابط إنستغرام
                 if (url.includes("instagram.com")) {
-                    const collapse = document.getElementById("manualTextCollapse");
-                    if (collapse) collapse.style.display = "block";
                     const txt = document.getElementById("rawPostTextInput");
                     if (txt) {
-                        txt.placeholder = "📌 إنستغرام: انسخ كابشن البوست واضغط '📋 لصق ذكي' لفرزه فوراً! وللصور اضغط Ctrl+V للصقها مباشرة أو اخترها من جهازك.";
+                        txt.placeholder = "📌 الصق كابشن بوست إنستغرام هنا.. وسيقوم المساعد الذكي فوراً بصياغة واقتراح أفضل عنوان ووصف وتحديد المحافظة...";
                         txt.focus();
                     }
-                    showToast("📸 إنستغرام: انسخ كابشن البوست واضغط '📋 لصق ذكي' (أو استخدم زر المفضلة)");
+                    showToast("ℹ️ إنستغرام يمنع السحب بالروابط: الصق كابشن البوست بخانة النص وسيقترح لك المساعد كل الصياغات فوراً!");
                     return;
                 }
 
@@ -2787,8 +2965,14 @@
 
                     if (tweetData) {
                         const rawText = tweetData.text || "";
+                        state.rawFullText = rawText;
+                        const txt = document.getElementById("rawPostTextInput");
+                        if (txt) txt.value = rawText;
                         const parsed = smartParseNewsText(rawText);
-                        if (parsed) applyParsedNews(parsed);
+                        if (parsed) {
+                            applyParsedNews(parsed);
+                            updateSuggestionsUI(rawText, parsed.governorateId);
+                        }
 
                         let imageUrls = [];
                         if (tweetData.media_extended && tweetData.media_extended.length > 0) {
@@ -2884,9 +3068,15 @@
                         }
                     }
 
-                    const fullRaw = (articleTitle + "\n" + articleBody).trim();
+                    const fullRaw = (articleTitle + (articleBody ? "\n\n" + articleBody : "")).trim();
+                    state.rawFullText = fullRaw;
+                    const txt = document.getElementById("rawPostTextInput");
+                    if (txt) txt.value = fullRaw;
                     const parsed = smartParseNewsText(fullRaw);
-                    if (parsed) applyParsedNews(parsed);
+                    if (parsed) {
+                        applyParsedNews(parsed);
+                        updateSuggestionsUI(fullRaw, parsed.governorateId);
+                    }
 
                     if (targetImages.length > 0) {
                         if (statusEl) statusEl.innerText = "⏳ جاري تنزيل صورة الخبر الأصلية...";
