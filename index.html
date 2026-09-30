@@ -1065,6 +1065,66 @@
                     <span class="style-name">إنستغرام كارد</span>
                     <span class="style-desc">هوية وشريط رسمي (4:5)</span>
                 </div>
+                <div class="style-card" data-style="breaking" onclick="selectStyle('breaking')">
+                    <span class="style-icon">🔴</span>
+                    <span class="style-name">عاجل التلفزيوني</span>
+                    <span class="style-desc">أحمر وذهبي إخباري (1:1)</span>
+                </div>
+                <div class="style-card" data-style="editorial" onclick="selectStyle('editorial')">
+                    <span class="style-icon">✨</span>
+                    <span class="style-name">إنفوجرافيك عصري</span>
+                    <span class="style-desc">زجاجي فاخر وحديث (4:5)</span>
+                </div>
+                <div class="style-card" data-style="royal" onclick="selectStyle('royal')">
+                    <span class="style-icon">👑</span>
+                    <span class="style-name">رويال كويت داكن</span>
+                    <span class="style-desc">فخامة ملكية بالذهب (4:5)</span>
+                </div>
+            </div>
+
+            <!-- هوية الصفحة وشعار الحساب وإنستغرام -->
+            <div class="section-header">
+                <span>هوية الصفحة وشعار الحساب</span>
+                <span class="badge" style="background: rgba(212, 175, 55, 0.15); color: #d4af37;">لوجو وإنستغرام</span>
+            </div>
+
+            <div class="branding-box" style="background: var(--bg-card); border: 1px solid var(--border-ui); border-radius: 10px; padding: 12px; margin-bottom: 18px;">
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label for="pageNameInput" style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1; display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>🏷️ اسم البيدج / الحساب:</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">يظهر على التصاميم</span>
+                    </label>
+                    <input type="text" id="pageNameInput" value="أخبار محافظات الكويت" placeholder="أدخل اسم صفحتك..." oninput="onPageNameChange(this.value)">
+                </div>
+
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label for="instaHandleInput" style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1; display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>📸 حساب أو رابط إنستغرام:</span>
+                        <span style="font-size: 0.7rem; color: #38bdf8;">مثال: @gov6kw أو رابط صفحتك</span>
+                    </label>
+                    <input type="text" id="instaHandleInput" value="@gov6kw" placeholder="@your_page أو الرابط" oninput="onInstaHandleChange(this.value)" style="direction: ltr; text-align: left;">
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; background: rgba(255,255,255,0.03); border: 1px dashed var(--border-ui); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div id="logoPreviewThumb" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #d4af37; overflow: hidden; background: #0b1424; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <img id="logoThumbImg" src="templates_overlay/assets/app_icon.png" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <div>
+                            <div style="font-size: 0.78rem; font-weight: 700; color: #fff;">لوجو الصفحة / البيدج</div>
+                            <div style="font-size: 0.68rem; color: var(--text-muted);" id="logoStatusText">شعار الكويت الافتراضي</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <button type="button" class="action-btn" style="padding: 4px 8px; font-size: 0.72rem; background: var(--primary); color: #fff;" onclick="document.getElementById('customLogoFileInput').click()" title="اختيار لوجو مخصص من جهازك">
+                            📤 تغيير
+                        </button>
+                        <button type="button" class="tool-btn" style="padding: 4px 6px; font-size: 0.72rem; color: #cbd5e1;" onclick="resetToDefaultLogo()" title="استعادة الشعار الافتراضي">
+                            ↺
+                        </button>
+                        <input type="file" id="customLogoFileInput" accept="image/*" onchange="handleCustomLogoUpload(event)" style="display: none;">
+                    </div>
+                </div>
             </div>
 
             <!-- 2. المحافظة -->
@@ -1338,7 +1398,7 @@
 
         // حالة التطبيق مع دعم تعدد الصور وتعدد الأنماط والتصاميم
         let state = {
-            designStyle: "canva", // "canva", "modern", "portrait"
+            designStyle: "canva", // "canva", "modern", "portrait", "breaking", "editorial", "royal"
             govId: "capital",
             headline: "محافظة العاصمة: تدشين ممشى رياضي متكامل وخدمات نموذجية جديدة",
             body: "المشروع يمتد على مساحة واسعة لخدمة أهالي المنطقة مع توفير كافة سبل الراحة والمساحات الخضراء.",
@@ -1355,6 +1415,11 @@
             photoW: 924,
             photoH: 494,
             photoRadius: 22,
+            // هوية الصفحة والحساب وإنستغرام
+            pageName: localStorage.getItem("kuwait_page_name") || "أخبار محافظات الكويت",
+            instaHandle: localStorage.getItem("kuwait_insta_handle") || "@gov6kw",
+            customLogoData: localStorage.getItem("kuwait_custom_logo") || null,
+            logoImg: null,
             // مصفوفة صور الخبر المرفوعة
             images: [],
             activeImageIndex: 0,
@@ -1371,7 +1436,10 @@
         const STYLES_INFO = {
             canva: { name: "قالب كانفا الرسمي", badge: "قالب كانفا" },
             modern: { name: "التصميم الإخباري المودرن", badge: "إخباري مودرن (1:1)" },
-            portrait: { name: "إنستغرام كارد عمودي", badge: "إنستغرام (4:5)" }
+            portrait: { name: "إنستغرام كارد عمودي", badge: "إنستغرام (4:5)" },
+            breaking: { name: "عاجل الإخباري التلفزيوني", badge: "عاجل تلفزيوني (1:1)" },
+            editorial: { name: "إنفوجرافيك عصري فاخر", badge: "إنفوجرافيك (4:5)" },
+            royal: { name: "رويال كويت الفاخر بالذهب", badge: "رويال كويت (4:5)" }
         };
 
         function selectStyle(styleId) {
@@ -1385,6 +1453,95 @@
             }
             render();
             showToast(`✓ تم تفعيل: ${STYLES_INFO[styleId].name}`);
+        }
+
+        // ==========================================
+        // وظائف هوية الصفحة والشعار وحساب إنستغرام
+        // ==========================================
+        function getFormattedHandle(handle) {
+            if (!handle) return "@gov6kw";
+            let h = handle.trim();
+            if (h.includes("instagram.com/")) {
+                const parts = h.split("instagram.com/")[1].split("/")[0].split("?")[0];
+                if (parts) return "@" + parts;
+            }
+            if (!h.startsWith("@") && !h.startsWith("http")) return "@" + h;
+            return h;
+        }
+
+        function initBrandIdentity() {
+            const pageInput = document.getElementById("pageNameInput");
+            if (pageInput) pageInput.value = state.pageName;
+
+            const instaInput = document.getElementById("instaHandleInput");
+            if (instaInput) instaInput.value = state.instaHandle;
+
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                state.logoImg = img;
+                render();
+            };
+            if (state.customLogoData) {
+                img.src = state.customLogoData;
+                const thumb = document.getElementById("logoThumbImg");
+                if (thumb) thumb.src = state.customLogoData;
+                const st = document.getElementById("logoStatusText");
+                if (st) st.innerText = "شعار مخصص محفوظ ✓";
+            } else {
+                img.src = "templates_overlay/assets/app_icon.png";
+            }
+        }
+
+        function onPageNameChange(val) {
+            state.pageName = val || "أخبار محافظات الكويت";
+            localStorage.setItem("kuwait_page_name", state.pageName);
+            render();
+        }
+
+        function onInstaHandleChange(val) {
+            state.instaHandle = val || "@gov6kw";
+            localStorage.setItem("kuwait_insta_handle", state.instaHandle);
+            render();
+        }
+
+        function handleCustomLogoUpload(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const dataUrl = evt.target.result;
+                state.customLogoData = dataUrl;
+                localStorage.setItem("kuwait_custom_logo", dataUrl);
+                const img = new Image();
+                img.onload = () => {
+                    state.logoImg = img;
+                    const thumb = document.getElementById("logoThumbImg");
+                    if (thumb) thumb.src = dataUrl;
+                    const st = document.getElementById("logoStatusText");
+                    if (st) st.innerText = "شعار مخصص تم تفعيله ✓";
+                    showToast("✓ تم تحديث وحفظ لوجو الصفحة بنجاح!");
+                    render();
+                };
+                img.src = dataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetToDefaultLogo() {
+            state.customLogoData = null;
+            localStorage.removeItem("kuwait_custom_logo");
+            const img = new Image();
+            img.onload = () => {
+                state.logoImg = img;
+                const thumb = document.getElementById("logoThumbImg");
+                if (thumb) thumb.src = "templates_overlay/assets/app_icon.png";
+                const st = document.getElementById("logoStatusText");
+                if (st) st.innerText = "شعار الكويت الافتراضي";
+                showToast("✓ تم استعادة الشعار الافتراضي");
+                render();
+            };
+            img.src = "templates_overlay/assets/app_icon.png";
         }
 
         function initDate() {
@@ -1856,6 +2013,12 @@
                 renderModernDesign(imgObj);
             } else if (state.designStyle === "portrait") {
                 renderPortraitDesign(imgObj);
+            } else if (state.designStyle === "breaking") {
+                renderBreakingDesign(imgObj);
+            } else if (state.designStyle === "editorial") {
+                renderEditorialDesign(imgObj);
+            } else if (state.designStyle === "royal") {
+                renderRoyalDesign(imgObj);
             } else {
                 renderCanvaDesign(imgObj);
             }
@@ -1992,6 +2155,9 @@
             canvas.height = h;
             ctx.clearRect(0, 0, w, h);
 
+            const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+            const handleText = getFormattedHandle(state.instaHandle);
+
             // الخلفية الكحلية الإخبارية الداكنة المتدرجة
             const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
             bgGrad.addColorStop(0, "#0b1424");
@@ -2015,44 +2181,58 @@
             ctx.fillStyle = "#ffffff"; ctx.fillRect(360, 0, 360, 8);
             ctx.fillStyle = "#ce1126"; ctx.fillRect(720, 0, 360, 8);
 
-            const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+            // الشريط العلوي (الهيدر مع اللوجو واسم البيدج وإنستغرام)
+            const logoR = 24;
+            const logoCX = w - 50 - logoR;
+            const logoCY = 48;
+            drawCircularLogo(ctx, state.logoImg, logoCX, logoCY, logoR, govInfo.color, 2, "#0b1424");
 
-            // الشريط العلوي (الهيدر)
-            // خط المحافظة اللوني
-            ctx.fillStyle = govInfo.color;
-            ctx.fillRect(w - 50 - 6, 26, 6, 36);
-
-            // اسم المحافظة
-            ctx.font = "900 32px 'Cairo'";
+            // اسم البيدج / الحساب بجوار الشعار
+            ctx.font = "900 24px 'Cairo'";
             ctx.fillStyle = "#ffffff";
             ctx.textAlign = "right";
             ctx.textBaseline = "middle";
-            ctx.fillText(govInfo.name, w - 50 - 18, 44);
+            ctx.fillText(state.pageName, logoCX - logoR - 10, 38);
 
-            // بادج "عاجل" أو "خبر رسمي" على اليسار
+            // اسم المحافظة أسفل اسم البيدج
+            ctx.font = "700 16px 'Cairo'";
+            ctx.fillStyle = govInfo.color;
+            ctx.fillText(`• ${govInfo.name}`, logoCX - logoR - 10, 60);
+
+            // على اليسار: بادج "عاجل" + زر / بادج حساب إنستغرام
             ctx.save();
             ctx.fillStyle = "#ce1126";
-            roundRect(ctx, 50, 26, 92, 36, 8, true, false);
-            ctx.font = "800 20px 'Cairo'";
+            roundRect(ctx, 50, 30, 84, 36, 8, true, false);
+            ctx.font = "800 19px 'Cairo'";
             ctx.fillStyle = "#ffffff";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText("عاجل", 50 + 92 / 2, 44);
+            ctx.fillText("عاجل", 50 + 84 / 2, 48);
             ctx.restore();
+
+            // شارة إنستغرام بجوار بادج عاجل
+            drawInstagramPill(ctx, 142, 30, handleText, {
+                height: 36,
+                font: "800 17px 'Cairo'",
+                textColor: "#f8fafc",
+                iconColor: "#e11d48",
+                bgColor: "rgba(255, 255, 255, 0.08)",
+                borderColor: "rgba(255, 255, 255, 0.18)"
+            });
 
             // خط فاصل علوي رفيع
             ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(50, 78);
-            ctx.lineTo(w - 50, 78);
+            ctx.moveTo(50, 84);
+            ctx.lineTo(w - 50, 84);
             ctx.stroke();
 
             // إطار الصورة
             const px = 50;
-            const py = 96;
+            const py = 100;
             const pw = 980;
-            const ph = 540;
+            const ph = 535;
 
             ctx.save();
             ctx.beginPath();
@@ -2133,7 +2313,7 @@
                 });
             }
 
-            // الفوتر السفلي
+            // الفوتر السفلي مع الشعار واسم البيدج وإنستغرام
             ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -2141,14 +2321,21 @@
             ctx.lineTo(w - 50, 1018);
             ctx.stroke();
 
-            ctx.font = "700 20px 'Cairo'";
-            ctx.fillStyle = "#64748b";
+            // اليمين: لوجو مصغر واسم البيدج
+            const footLogoR = 15;
+            drawCircularLogo(ctx, state.logoImg, w - 50 - footLogoR, 1045, footLogoR, "#d4af37", 1.5, "#0b1424");
+            ctx.font = "800 19px 'Cairo'";
+            ctx.fillStyle = "#cbd5e1";
             ctx.textAlign = "right";
             ctx.textBaseline = "middle";
-            ctx.fillText("أخبار محافظات الكويت 🇰🇼", w - 50, 1045);
+            ctx.fillText(state.pageName + " 🇰🇼", w - 50 - footLogoR * 2 - 8, 1045);
 
+            // اليسار: حساب إنستغرام مع أيقونة الكاميرا
             ctx.textAlign = "left";
-            ctx.fillText(`الكويت | ${state.date || ""}`, 50, 1045);
+            ctx.font = "700 17px 'Cairo'";
+            ctx.fillStyle = "#94a3b8";
+            drawInstagramIcon(ctx, 50, 1035, 20, "#e11d48");
+            ctx.fillText(`${handleText} | الكويت`, 78, 1045);
         }
 
         // ========================================================
@@ -2162,6 +2349,7 @@
             ctx.clearRect(0, 0, w, h);
 
             const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+            const handleText = getFormattedHandle(state.instaHandle);
 
             // صورة الخبر تحتل الجزء العلوي بالكامل
             const pw = w;
@@ -2214,20 +2402,46 @@
             ctx.fillText(govInfo.name, w - 280 + 250 - 40, 46);
             ctx.restore();
 
-            // بادج التاريخ المدمج أسفل يمين الصورة
+            // شارة اللوجو واسم البيدج الطافية أعلى اليسار
+            ctx.save();
+            ctx.fillStyle = "rgba(10, 15, 25, 0.85)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+            ctx.lineWidth = 1;
+            const topLogoPillW = 280;
+            roundRect(ctx, 30, 24, topLogoPillW, 44, 22, true, true);
+            const topLogoR = 17;
+            drawCircularLogo(ctx, state.logoImg, 30 + topLogoR + 6, 46, topLogoR, "#d4af37", 1.5, "#0a1120");
+            ctx.font = "800 19px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(state.pageName, 30 + topLogoPillW - 14, 46);
+            ctx.restore();
+
+            // شارات أسفل الصورة: التاريخ على اليسار والإنستغرام على اليمين
             if (state.date) {
                 ctx.save();
                 ctx.fillStyle = "rgba(10, 15, 25, 0.85)";
                 ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
                 ctx.lineWidth = 1;
-                roundRect(ctx, w - 230, ph - 50, 210, 38, 10, true, true);
-                ctx.font = "700 20px 'Cairo'";
+                roundRect(ctx, 30, ph - 50, 200, 38, 10, true, true);
+                ctx.font = "700 19px 'Cairo'";
                 ctx.fillStyle = "#ffffff";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                ctx.fillText(`📅 ${state.date}`, w - 230 + 105, ph - 50 + 19);
+                ctx.fillText(`📅 ${state.date}`, 30 + 100, ph - 50 + 19);
                 ctx.restore();
             }
+
+            drawInstagramPill(ctx, w - 30, ph - 50, handleText, {
+                height: 38,
+                align: "right",
+                font: "800 18px 'Cairo'",
+                textColor: "#ffffff",
+                iconColor: "#e11d48",
+                bgColor: "rgba(10, 15, 25, 0.88)",
+                borderColor: "rgba(255, 255, 255, 0.2)"
+            });
 
             // بطاقة النص السفلية (Dark Luxury Card)
             const cardY = ph;
@@ -2282,16 +2496,844 @@
             ctx.lineTo(w - 50, h - 65);
             ctx.stroke();
 
+            // يمين: حساب إنستغرام
             ctx.font = "800 22px 'Cairo'";
             ctx.fillStyle = govInfo.color;
             ctx.textAlign = "right";
             ctx.textBaseline = "middle";
-            ctx.fillText("@gov6kw", w - 60, h - 35);
+            drawInstagramIcon(ctx, w - 60 - 22, h - 46, 22, govInfo.color);
+            ctx.fillText(handleText, w - 90, h - 35);
 
-            ctx.font = "600 18px 'Cairo'";
-            ctx.fillStyle = "#64748b";
+            // يسار: لوجو واسم البيدج
+            const pFootLogoR = 16;
+            drawCircularLogo(ctx, state.logoImg, 60 + pFootLogoR, h - 35, pFootLogoR, "#d4af37", 1.5, "#0a1120");
+            ctx.font = "700 20px 'Cairo'";
+            ctx.fillStyle = "#94a3b8";
             ctx.textAlign = "left";
-            ctx.fillText("أخبار محافظات الكويت | تغطية شاملة", 60, h - 35);
+            ctx.fillText(state.pageName + " | تغطية شاملة", 60 + pFootLogoR * 2 + 10, h - 35);
+        }
+
+        // ========================================================
+        // 4. ستايل عاجل الإخباري التلفزيوني (Breaking Broadcast 1080×1080)
+        // ========================================================
+        function renderBreakingDesign(imgObj) {
+            const w = 1080;
+            const h = 1080;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+
+            const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+            const handleText = getFormattedHandle(state.instaHandle);
+
+            // 1. خلفية البث التلفزيوني الداكنة
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, "#080c16");
+            bgGrad.addColorStop(0.6, "#04070d");
+            bgGrad.addColorStop(1, "#020408");
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // هالة حمراء خفيفة أعلى اليمين
+            const redGlow = ctx.createRadialGradient(w - 100, 100, 10, w - 100, 100, 350);
+            redGlow.addColorStop(0, "rgba(225, 29, 72, 0.15)");
+            redGlow.addColorStop(1, "rgba(225, 29, 72, 0)");
+            ctx.fillStyle = redGlow;
+            ctx.fillRect(0, 0, w, h);
+
+            // 2. الشريط الإخباري العلوي المميز (Top News Channel Bar)
+            ctx.fillStyle = "rgba(10, 16, 28, 0.95)";
+            ctx.fillRect(0, 0, w, 78);
+
+            // خط أحمر سفلي متوهج للهيدر
+            ctx.fillStyle = "#ce1126";
+            ctx.fillRect(0, 75, w, 3);
+
+            // يمين الهيدر: لوجو القناة/البيدج + اسم البيدج + علامة التوثيق
+            const logoR = 24;
+            const logoCX = w - 45 - logoR;
+            const logoCY = 39;
+            drawCircularLogo(ctx, state.logoImg, logoCX, logoCY, logoR, "#d4af37", 2, "#070c16");
+
+            ctx.font = "900 24px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(state.pageName, logoCX - logoR - 10, 39);
+
+            const nameW = ctx.measureText(state.pageName).width;
+            drawVerifiedBadge(ctx, logoCX - logoR - 10 - nameW - 14, 39, 9);
+
+            // يسار الهيدر: شارة "عاجل" الحمراء المتوهجة + حساب إنستغرام
+            ctx.save();
+            ctx.fillStyle = "#ce1126";
+            roundRect(ctx, 45, 20, 96, 38, 8, true, false);
+            ctx.font = "900 20px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("🔴 عاجل", 45 + 96 / 2, 39);
+            ctx.restore();
+
+            drawInstagramPill(ctx, 150, 20, handleText, {
+                height: 38,
+                font: "800 17px 'Cairo'",
+                textColor: "#ffe4e6",
+                iconColor: "#f43f5e",
+                bgColor: "rgba(255, 255, 255, 0.08)",
+                borderColor: "rgba(255, 255, 255, 0.18)"
+            });
+
+            // 3. صورة الخبر مع حواف ناعمة وتعتيم تدريجي سفلي
+            const px = 45;
+            const py = 92;
+            const pw = 990;
+            const ph = 545;
+
+            ctx.save();
+            ctx.beginPath();
+            roundRect(ctx, px, py, pw, ph, 14, false, false);
+            ctx.clip();
+
+            if (imgObj && imgObj.img) {
+                const img = imgObj.img;
+                const zoom = imgObj.zoom || 1.0;
+                const panX = imgObj.panX || 0;
+                const panY = imgObj.panY || 0;
+
+                const scale = Math.max(pw / img.width, ph / img.height) * zoom;
+                const dw = img.width * scale;
+                const dh = img.height * scale;
+                const dx = px + (pw - dw) / 2 + panX;
+                const dy = py + (ph - dh) / 2 + panY;
+                ctx.drawImage(img, dx, dy, dw, dh);
+            } else {
+                ctx.fillStyle = "#111827";
+                ctx.fillRect(px, py, pw, ph);
+            }
+
+            // تدرج تعتيم سينمائي أسفل الصورة
+            const darkVig = ctx.createLinearGradient(0, py + ph - 140, 0, py + ph);
+            darkVig.addColorStop(0, "rgba(4, 7, 13, 0)");
+            darkVig.addColorStop(1, "rgba(4, 7, 13, 0.85)");
+            ctx.fillStyle = darkVig;
+            ctx.fillRect(px, py + ph - 140, pw, 140);
+            ctx.restore();
+
+            // إطار خارجي رفيع للصورة
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+            ctx.lineWidth = 1.5;
+            roundRect(ctx, px, py, pw, ph, 14, false, true);
+
+            // شارات فوق الصورة: المحافظة والتاريخ
+            ctx.save();
+            ctx.fillStyle = "rgba(7, 11, 20, 0.85)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, px + pw - 210, py + 16, 195, 36, 18, true, true);
+            ctx.fillStyle = govInfo.color;
+            ctx.beginPath();
+            ctx.arc(px + pw - 210 + 195 - 20, py + 16 + 18, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = "800 18px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(govInfo.name, px + pw - 210 + 195 - 34, py + 16 + 19);
+            ctx.restore();
+
+            if (state.date) {
+                ctx.save();
+                ctx.fillStyle = "rgba(7, 11, 20, 0.85)";
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+                ctx.lineWidth = 1;
+                roundRect(ctx, px + 16, py + ph - 50, 190, 34, 8, true, true);
+                ctx.font = "700 18px 'Cairo'";
+                ctx.fillStyle = "#ffffff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(`📅 ${state.date}`, px + 16 + 95, py + ph - 50 + 17);
+                ctx.restore();
+            }
+
+            // 4. بطاقة الأخبار العاجلة التلفزيونية (TV Lower-Third Card)
+            const boxY = 652;
+            const boxH = 345;
+            const boxW = pw;
+
+            ctx.save();
+            ctx.fillStyle = "rgba(8, 13, 24, 0.95)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, px, boxY, boxW, boxH, 12, true, true);
+
+            // ترويسة شريط عاجل الأحمر المائل
+            ctx.fillStyle = "#ce1126";
+            roundRect(ctx, px + boxW - 170, boxY, 170, 42, [0, 12, 0, 8], true, false);
+            ctx.font = "900 22px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("عــــاجــــل", px + boxW - 85, boxY + 21);
+
+            // خط ذهبي ممتد أسفل شارة عاجل
+            ctx.fillStyle = "#f59e0b";
+            ctx.fillRect(px, boxY + 42, boxW, 3);
+            ctx.restore();
+
+            // كتابة عنوان الخبر (المانشيت)
+            const titleFontSize = Math.min(state.titleSize, 40);
+            const titleFont = `900 ${titleFontSize}px 'Cairo'`;
+            const titleLines = wrapText(state.headline, boxW - 50, titleFont).slice(0, 3);
+            const lineHTitle = titleFontSize + 14;
+            let curY = boxY + 62;
+
+            ctx.font = titleFont;
+            ctx.textAlign = "right";
+            ctx.textBaseline = "top";
+            titleLines.forEach(line => {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillText(line, px + boxW - 25 + 2, curY + 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText(line, px + boxW - 25, curY);
+                curY += lineHTitle;
+            });
+
+            // كتابة التفاصيل والمتن
+            if (state.showBody && state.body) {
+                curY += 6;
+                const bodyFontSize = Math.min(state.bodySize, 23);
+                const bodyFont = `600 ${bodyFontSize}px 'Cairo'`;
+                const bodyLines = wrapText(state.body, boxW - 50, bodyFont).slice(0, 2);
+                const lineHBody = bodyFontSize + 11;
+                ctx.font = bodyFont;
+                ctx.fillStyle = "#cbd5e1";
+                bodyLines.forEach(line => {
+                    ctx.fillText(line, px + boxW - 25, curY);
+                    curY += lineHBody;
+                });
+            }
+
+            // 5. شريط التيكر الإخباري السفلي (Breaking News Ticker)
+            const tickY = 1014;
+            const tickH = 50;
+            ctx.save();
+            ctx.fillStyle = "rgba(6, 10, 18, 0.98)";
+            roundRect(ctx, px, tickY, boxW, tickH, 8, true, false);
+
+            // كتلة حمراء يمنى للتيكر
+            ctx.fillStyle = "#ce1126";
+            roundRect(ctx, px + boxW - 140, tickY, 140, tickH, [0, 8, 8, 0], true, false);
+            ctx.font = "900 18px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("تغطية حية", px + boxW - 70, tickY + tickH / 2);
+
+            // الشعار واسم البيدج
+            const fLogoR = 14;
+            drawCircularLogo(ctx, state.logoImg, px + boxW - 165, tickY + tickH / 2, fLogoR, "#d4af37", 1.5, "#070c16");
+            ctx.font = "800 18px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.fillText(state.pageName, px + boxW - 165 - fLogoR - 8, tickY + tickH / 2);
+
+            // يسار التيكر: إنستغرام والدولة
+            ctx.textAlign = "left";
+            ctx.font = "700 17px 'Cairo'";
+            ctx.fillStyle = "#f43f5e";
+            drawInstagramIcon(ctx, px + 18, tickY + (tickH - 18) / 2, 18, "#f43f5e");
+            ctx.fillStyle = "#94a3b8";
+            ctx.fillText(`${handleText} | دولة الكويت 🇰🇼`, px + 44, tickY + tickH / 2 + 1);
+            ctx.restore();
+        }
+
+        // ========================================================
+        // 5. ستايل إنفوجرافيك عصري فاخر (Modern Editorial Glass 1080×1350)
+        // ========================================================
+        function renderEditorialDesign(imgObj) {
+            const w = 1080;
+            const h = 1350;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+
+            const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+            const handleText = getFormattedHandle(state.instaHandle);
+
+            // 1. خلفية داكنة راقية متدرجة مع توهج خافت
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, "#0a1120");
+            bgGrad.addColorStop(0.5, "#060911");
+            bgGrad.addColorStop(1, "#020408");
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // توهج لوني جانبي بلون المحافظة
+            const govGlow = ctx.createRadialGradient(w - 50, 200, 20, w - 50, 200, 400);
+            govGlow.addColorStop(0, `${govInfo.color}22`);
+            govGlow.addColorStop(1, "transparent");
+            ctx.fillStyle = govGlow;
+            ctx.fillRect(0, 0, w, h);
+
+            // علم الكويت كشريط رفيع جداً ومودرن بالأعلى
+            ctx.fillStyle = "#007a3d"; ctx.fillRect(0, 0, 360, 5);
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(360, 0, 360, 5);
+            ctx.fillStyle = "#ce1126"; ctx.fillRect(720, 0, 360, 5);
+
+            // 2. الهيدر الزجاجي الطافي (Floating Glass Nav Bar)
+            const navX = 45;
+            const navY = 28;
+            const navW = 990;
+            const navH = 76;
+
+            ctx.save();
+            ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.14)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, navX, navY, navW, navH, 38, true, true);
+
+            // يمين الهيدر: لوجو دائري مع حلقة متوهجة + اسم البيدج + شارة توثيق
+            const logoR = 25;
+            const logoCX = navX + navW - 20 - logoR;
+            const logoCY = navY + navH / 2;
+            drawCircularLogo(ctx, state.logoImg, logoCX, logoCY, logoR, govInfo.color, 2, "#0a1120");
+
+            ctx.font = "900 24px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(state.pageName, logoCX - logoR - 10, logoCY);
+
+            const nameW = ctx.measureText(state.pageName).width;
+            drawVerifiedBadge(ctx, logoCX - logoR - 10 - nameW - 14, logoCY, 9);
+
+            // يسار الهيدر: حساب إنستغرام مع زر مودرن + التاريخ
+            drawInstagramPill(ctx, navX + 16, navY + (navH - 38) / 2, handleText, {
+                height: 38,
+                font: "800 17px 'Cairo'",
+                textColor: "#ffffff",
+                iconColor: "#38bdf8",
+                bgColor: "rgba(56, 189, 248, 0.12)",
+                borderColor: "rgba(56, 189, 248, 0.3)"
+            });
+
+            if (state.date) {
+                ctx.font = "700 17px 'Cairo'";
+                ctx.fillStyle = "#94a3b8";
+                ctx.textAlign = "left";
+                ctx.fillText(`📅 ${state.date}`, navX + 235, logoCY);
+            }
+            ctx.restore();
+
+            // 3. مساحة الصورة بنافذة زجاجية مستديرة الزوايا
+            const px = 45;
+            const py = 120;
+            const pw = 990;
+            const ph = 640;
+
+            ctx.save();
+            ctx.beginPath();
+            roundRect(ctx, px, py, pw, ph, 22, false, false);
+            ctx.clip();
+
+            if (imgObj && imgObj.img) {
+                const img = imgObj.img;
+                const zoom = imgObj.zoom || 1.0;
+                const panX = imgObj.panX || 0;
+                const panY = imgObj.panY || 0;
+
+                const scale = Math.max(pw / img.width, ph / img.height) * zoom;
+                const dw = img.width * scale;
+                const dh = img.height * scale;
+                const dx = px + (pw - dw) / 2 + panX;
+                const dy = py + (ph - dh) / 2 + panY;
+                ctx.drawImage(img, dx, dy, dw, dh);
+            } else {
+                ctx.fillStyle = "#1e293b";
+                ctx.fillRect(px, py, pw, ph);
+            }
+
+            // تدرج تعتيم سينمائي أسفل الصورة
+            const darkVig = ctx.createLinearGradient(0, py + ph - 120, 0, py + ph);
+            darkVig.addColorStop(0, "transparent");
+            darkVig.addColorStop(1, "rgba(6, 9, 17, 0.8)");
+            ctx.fillStyle = darkVig;
+            ctx.fillRect(px, py + ph - 120, pw, 120);
+            ctx.restore();
+
+            // إطار زجاجي راقي للصورة
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+            ctx.lineWidth = 1.5;
+            roundRect(ctx, px, py, pw, ph, 22, false, true);
+
+            // بادج المحافظة أعلى يمين الصورة
+            ctx.save();
+            ctx.fillStyle = "rgba(10, 15, 25, 0.88)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, px + pw - 230, py + 18, 210, 40, 20, true, true);
+            ctx.fillStyle = govInfo.color;
+            ctx.beginPath();
+            ctx.arc(px + pw - 230 + 210 - 22, py + 18 + 20, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = "800 20px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(govInfo.name, px + pw - 230 + 210 - 38, py + 18 + 21);
+            ctx.restore();
+
+            // بادج "تقرير ميداني حصري" أسفل يمين الصورة
+            ctx.save();
+            ctx.fillStyle = "rgba(10, 15, 25, 0.88)";
+            ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, px + pw - 190, py + ph - 48, 175, 34, 17, true, true);
+            ctx.font = "800 16px 'Cairo'";
+            ctx.fillStyle = "#d4af37";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("✨ تقرير ميداني حصري", px + pw - 190 + 175 / 2, py + ph - 48 + 18);
+            ctx.restore();
+
+            // 4. بطاقة الخبر الزجاجية الفاخرة (Glassmorphic Article Card)
+            const cardY = 780;
+            const cardH = 470;
+            const cardW = pw;
+
+            ctx.save();
+            ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, px, cardY, cardW, cardH, 22, true, true);
+
+            // شريط لوني فاصل بلون المحافظة
+            ctx.fillStyle = govInfo.color;
+            ctx.fillRect(px + 40, cardY, cardW - 80, 4);
+
+            // ترويسة التصنيف
+            ctx.font = "800 16px 'Cairo'";
+            ctx.fillStyle = "#38bdf8";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("أخبار التنمية والخدمات العامة • محافظات دولة الكويت", px + cardW / 2, cardY + 36);
+
+            // كتابة العنوان
+            const titleFontSize = Math.min(state.titleSize, 40);
+            const titleFont = `900 ${titleFontSize}px 'Cairo'`;
+            const titleLines = wrapText(state.headline, cardW - 60, titleFont).slice(0, 3);
+            const lineHTitle = titleFontSize + 15;
+            let curY = cardY + 70;
+
+            ctx.font = titleFont;
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            titleLines.forEach(line => {
+                ctx.fillText(line, px + cardW / 2, curY);
+                curY += lineHTitle;
+            });
+
+            // كتابة التفاصيل
+            if (state.showBody && state.body) {
+                curY += 12;
+                const bodyFontSize = Math.min(state.bodySize, 24);
+                const bodyFont = `600 ${bodyFontSize}px 'Cairo'`;
+                const bodyLines = wrapText(state.body, cardW - 80, bodyFont).slice(0, 3);
+                const lineHBody = bodyFontSize + 12;
+                ctx.font = bodyFont;
+                ctx.fillStyle = "#cbd5e1";
+                bodyLines.forEach(line => {
+                    ctx.fillText(line, px + cardW / 2, curY);
+                    curY += lineHBody;
+                });
+            }
+            ctx.restore();
+
+            // 5. الفوتر السفلي الإخباري الراقي
+            const footY = 1270;
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px, footY);
+            ctx.lineTo(px + pw, footY);
+            ctx.stroke();
+
+            // اليمين: الشعار واسم البيدج
+            const fLogoR = 16;
+            drawCircularLogo(ctx, state.logoImg, px + pw - fLogoR, footY + 35, fLogoR, "#d4af37", 1.5, "#0a1120");
+            ctx.font = "800 20px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(state.pageName, px + pw - fLogoR * 2 - 10, footY + 35);
+
+            // اليسار: حساب إنستغرام
+            ctx.textAlign = "left";
+            drawInstagramIcon(ctx, px, footY + 25, 20, "#38bdf8");
+            ctx.font = "800 19px 'Cairo'";
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillText(handleText, px + 28, footY + 35);
+        }
+
+        // ========================================================
+        // 6. ستايل رويال كويت الفاخر بالذهب (Royal Kuwait Dark Gold 1080×1350)
+        // ========================================================
+        function renderRoyalDesign(imgObj) {
+            const w = 1080;
+            const h = 1350;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.clearRect(0, 0, w, h);
+
+            const govInfo = GOVERNORATES[state.govId] || GOVERNORATES.capital;
+            const handleText = getFormattedHandle(state.instaHandle);
+
+            // 1. خلفية ملكية كحلية/زمردية داكنة جداً
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+            bgGrad.addColorStop(0, "#08101a");
+            bgGrad.addColorStop(0.5, "#040810");
+            bgGrad.addColorStop(1, "#020408");
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // 2. إطار مزدوج ملكي ذهبي حول التصميم بالكامل
+            ctx.strokeStyle = "#d4af37";
+            ctx.lineWidth = 2;
+            roundRect(ctx, 16, 16, w - 32, h - 32, 12, false, true);
+
+            ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, 24, 24, w - 48, h - 48, 8, false, true);
+
+            // زخارف ذهبية على الأركان الأربعة
+            const corners = [
+                [30, 30],
+                [w - 30, 30],
+                [30, h - 30],
+                [w - 30, h - 30]
+            ];
+            ctx.fillStyle = "#d4af37";
+            corners.forEach(([cx, cy]) => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 3. الهيدر الملكي الفخم بالتاج والشعار
+            const crestY = 70;
+            const crestR = 30;
+            const crestCX = w / 2;
+            ctx.save();
+            ctx.strokeStyle = "rgba(212, 175, 55, 0.35)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(crestCX, crestY, crestR + 5, 0, Math.PI * 2);
+            ctx.stroke();
+            drawCircularLogo(ctx, state.logoImg, crestCX, crestY, crestR, "#d4af37", 2.5, "#08101a");
+            ctx.restore();
+
+            // اسم البيدج الملكي أسفل الشعار
+            ctx.font = "900 26px 'Cairo'";
+            ctx.fillStyle = "#fef08a";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(state.pageName, w / 2, crestY + crestR + 20);
+
+            // سطر الوصف الرسمي
+            ctx.font = "700 15px 'Cairo'";
+            ctx.fillStyle = "#d4af37";
+            ctx.fillText("المكتب الإعلامي الموحد • دولة الكويت 🇰🇼", w / 2, crestY + crestR + 42);
+
+            // يسار الهيدر: حساب إنستغرام ببادج ملكي ذهبي
+            drawInstagramPill(ctx, 42, crestY - 18, handleText, {
+                height: 36,
+                font: "800 17px 'Cairo'",
+                textColor: "#fef08a",
+                iconColor: "#d4af37",
+                bgColor: "rgba(10, 16, 26, 0.9)",
+                borderColor: "rgba(212, 175, 55, 0.5)"
+            });
+
+            // يمين الهيدر: شارة المحافظة الرسمية
+            ctx.save();
+            ctx.fillStyle = "rgba(10, 16, 26, 0.9)";
+            ctx.strokeStyle = "rgba(212, 175, 55, 0.5)";
+            ctx.lineWidth = 1;
+            roundRect(ctx, w - 240, crestY - 18, 198, 36, 18, true, true);
+            ctx.fillStyle = govInfo.color;
+            ctx.beginPath();
+            ctx.arc(w - 240 + 198 - 20, crestY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = "800 18px 'Cairo'";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(govInfo.name, w - 240 + 198 - 34, crestY + 1);
+            ctx.restore();
+
+            // 4. إطار صورة الخبر بإطار مذهب أنيق
+            const px = 45;
+            const py = 160;
+            const pw = 990;
+            const ph = 570;
+
+            ctx.save();
+            ctx.beginPath();
+            roundRect(ctx, px, py, pw, ph, 16, false, false);
+            ctx.clip();
+
+            if (imgObj && imgObj.img) {
+                const img = imgObj.img;
+                const zoom = imgObj.zoom || 1.0;
+                const panX = imgObj.panX || 0;
+                const panY = imgObj.panY || 0;
+
+                const scale = Math.max(pw / img.width, ph / img.height) * zoom;
+                const dw = img.width * scale;
+                const dh = img.height * scale;
+                const dx = px + (pw - dw) / 2 + panX;
+                const dy = py + (ph - dh) / 2 + panY;
+                ctx.drawImage(img, dx, dy, dw, dh);
+            } else {
+                ctx.fillStyle = "#0d1829";
+                ctx.fillRect(px, py, pw, ph);
+            }
+            ctx.restore();
+
+            // برواز ذهبي حول الصورة
+            ctx.strokeStyle = "#d4af37";
+            ctx.lineWidth = 2;
+            roundRect(ctx, px, py, pw, ph, 16, false, true);
+
+            // شارة التاريخ أسفل يمين الصورة
+            if (state.date) {
+                ctx.save();
+                ctx.fillStyle = "rgba(8, 16, 26, 0.9)";
+                ctx.strokeStyle = "rgba(212, 175, 55, 0.6)";
+                ctx.lineWidth = 1;
+                roundRect(ctx, px + pw - 220, py + ph - 48, 200, 36, 8, true, true);
+                ctx.font = "800 18px 'Cairo'";
+                ctx.fillStyle = "#fef08a";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(`📅 ${state.date}`, px + pw - 220 + 100, py + ph - 48 + 18);
+                ctx.restore();
+            }
+
+            // 5. لوحة النص الملكية الفخمة (Royal Plaque)
+            const plaqueY = 750;
+            const plaqueH = 490;
+            const plaqueW = pw;
+
+            ctx.save();
+            ctx.fillStyle = "rgba(7, 12, 20, 0.95)";
+            ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
+            ctx.lineWidth = 1.5;
+            roundRect(ctx, px, plaqueY, plaqueW, plaqueH, 16, true, true);
+
+            // شريط علوي ذهبي مذهب
+            ctx.fillStyle = "#d4af37";
+            ctx.fillRect(px + 40, plaqueY, plaqueW - 80, 3);
+
+            // وسام بيان رسمي ملكي
+            ctx.fillStyle = "#d4af37";
+            roundRect(ctx, px + plaqueW / 2 - 95, plaqueY + 20, 190, 32, 16, true, false);
+            ctx.font = "900 16px 'Cairo'";
+            ctx.fillStyle = "#08101a";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("👑 بيان رسمي معتمد", px + plaqueW / 2, plaqueY + 36);
+
+            // العنوان المانشيت
+            const titleFontSize = Math.min(state.titleSize, 40);
+            const titleFont = `900 ${titleFontSize}px 'Cairo'`;
+            const titleLines = wrapText(state.headline, plaqueW - 60, titleFont).slice(0, 3);
+            const lineHTitle = titleFontSize + 14;
+            let curY = plaqueY + 74;
+
+            ctx.font = titleFont;
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            titleLines.forEach(line => {
+                ctx.fillText(line, px + plaqueW / 2, curY);
+                curY += lineHTitle;
+            });
+
+            // فاصل ذهبي زخرفي في المنتصف
+            curY += 10;
+            ctx.font = "700 16px 'Cairo'";
+            ctx.fillStyle = "#d4af37";
+            ctx.fillText("─── ✦ ───", px + plaqueW / 2, curY);
+            curY += 24;
+
+            // المتن والتفاصيل
+            if (state.showBody && state.body) {
+                const bodyFontSize = Math.min(state.bodySize, 24);
+                const bodyFont = `600 ${bodyFontSize}px 'Cairo'`;
+                const bodyLines = wrapText(state.body, plaqueW - 80, bodyFont).slice(0, 3);
+                const lineHBody = bodyFontSize + 12;
+                ctx.font = bodyFont;
+                ctx.fillStyle = "#f1f5f9";
+                bodyLines.forEach(line => {
+                    ctx.fillText(line, px + plaqueW / 2, curY);
+                    curY += lineHBody;
+                });
+            }
+            ctx.restore();
+
+            // 6. الفوتر الملكي الذهبي
+            const footY = 1260;
+            ctx.strokeStyle = "rgba(212, 175, 55, 0.3)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px, footY);
+            ctx.lineTo(px + pw, footY);
+            ctx.stroke();
+
+            // يمين الفوتر: لوجو واسم البيدج
+            const fLogoR = 15;
+            drawCircularLogo(ctx, state.logoImg, px + pw - fLogoR, footY + 36, fLogoR, "#d4af37", 1.5, "#08101a");
+            ctx.font = "800 19px 'Cairo'";
+            ctx.fillStyle = "#fef08a";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.fillText(state.pageName, px + pw - fLogoR * 2 - 10, footY + 36);
+
+            // منتصف الفوتر: عبارة العز
+            ctx.font = "700 16px 'Cairo'";
+            ctx.fillStyle = "#d4af37";
+            ctx.textAlign = "center";
+            ctx.fillText("دولة الكويت • كويت العز 🇰🇼", px + pw / 2, footY + 36);
+
+            // يسار الفوتر: حساب إنستغرام
+            ctx.textAlign = "left";
+            drawInstagramIcon(ctx, px, footY + 26, 20, "#d4af37");
+            ctx.font = "800 18px 'Cairo'";
+            ctx.fillStyle = "#fef08a";
+            ctx.fillText(handleText, px + 28, footY + 36);
+        }
+
+        // ==========================================
+        // أدوات رسم العناصر الزخرفية والهوية على الكانفاس
+        // ==========================================
+        function drawCircularLogo(ctx, img, cx, cy, radius, borderColor = "#d4af37", borderWidth = 2, bgColor = "#0a1120") {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = bgColor;
+            ctx.fill();
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius - borderWidth / 2, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
+            if (img && img.complete && img.naturalWidth > 0) {
+                const padding = radius * 0.12;
+                const drawSize = (radius - padding) * 2;
+                ctx.drawImage(img, cx - drawSize / 2, cy - drawSize / 2, drawSize, drawSize);
+            } else {
+                ctx.fillStyle = "#d4af37";
+                ctx.font = `800 ${Math.round(radius * 0.9)}px 'Cairo'`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("🇰🇼", cx, cy + 1);
+            }
+            ctx.restore();
+
+            if (borderWidth > 0 && borderColor) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = borderWidth;
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawInstagramIcon(ctx, x, y, size = 20, color = "#ffffff") {
+            ctx.save();
+            ctx.translate(x, y);
+            const r = size * 0.28;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = Math.max(1.8, size * 0.09);
+            roundRect(ctx, 0, 0, size, size, r, false, true);
+
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size * 0.26, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(size * 0.74, size * 0.26, size * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawInstagramPill(ctx, x, y, handle, options = {}) {
+            const height = options.height || 34;
+            const font = options.font || "800 17px 'Cairo'";
+            const textColor = options.textColor || "#ffffff";
+            const iconColor = options.iconColor || "#ffffff";
+            const bgColor = options.bgColor || "rgba(10, 15, 25, 0.85)";
+            const borderColor = options.borderColor || "rgba(255, 255, 255, 0.2)";
+            const align = options.align || "left";
+
+            ctx.save();
+            ctx.font = font;
+            const textW = ctx.measureText(handle).width;
+            const iconSize = height * 0.52;
+            const paddingX = 12;
+            const totalW = textW + iconSize + paddingX * 2 + 6;
+
+            let startX = x;
+            if (align === "right") {
+                startX = x - totalW;
+            } else if (align === "center") {
+                startX = x - totalW / 2;
+            }
+
+            ctx.fillStyle = bgColor;
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 1;
+            roundRect(ctx, startX, y, totalW, height, height / 2, true, Boolean(borderColor));
+
+            const iconX = startX + paddingX;
+            const iconY = y + (height - iconSize) / 2;
+            drawInstagramIcon(ctx, iconX, iconY, iconSize, iconColor);
+
+            ctx.fillStyle = textColor;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillText(handle, iconX + iconSize + 7, y + height / 2 + 1);
+
+            ctx.restore();
+            return totalW;
+        }
+
+        function drawVerifiedBadge(ctx, cx, cy, radius = 9) {
+            ctx.save();
+            ctx.fillStyle = "#38bdf8";
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = Math.max(1.8, radius * 0.24);
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.beginPath();
+            ctx.moveTo(cx - radius * 0.45, cy - radius * 0.05);
+            ctx.lineTo(cx - radius * 0.1, cy + radius * 0.35);
+            ctx.lineTo(cx + radius * 0.45, cy - radius * 0.35);
+            ctx.stroke();
+            ctx.restore();
         }
 
         function wrapText(text, maxWidth, font) {
@@ -2317,16 +3359,31 @@
         }
 
         function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+            let tl, tr, br, bl;
+            if (typeof radius === 'number') {
+                tl = tr = br = bl = radius;
+            } else if (Array.isArray(radius)) {
+                tl = radius[0] || 0;
+                tr = radius[1] || 0;
+                br = radius[2] || 0;
+                bl = radius[3] || 0;
+            } else {
+                tl = tr = br = bl = 0;
+            }
             ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.moveTo(x + tl, y);
+            ctx.lineTo(x + width - tr, y);
+            if (tr) ctx.quadraticCurveTo(x + width, y, x + width, y + tr);
+            else ctx.lineTo(x + width, y);
+            ctx.lineTo(x + width, y + height - br);
+            if (br) ctx.quadraticCurveTo(x + width, y + height, x + width - br, y + height);
+            else ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x + bl, y + height);
+            if (bl) ctx.quadraticCurveTo(x, y + height, x, y + height - bl);
+            else ctx.lineTo(x, y + height);
+            ctx.lineTo(x, y + tl);
+            if (tl) ctx.quadraticCurveTo(x, y, x + tl, y);
+            else ctx.lineTo(x, y);
             ctx.closePath();
             if (fill) ctx.fill();
             if (stroke) ctx.stroke();
@@ -3259,6 +4316,7 @@
 
         window.addEventListener("DOMContentLoaded", async () => {
             initDate();
+            initBrandIdentity();
             checkUrlImport();
             await document.fonts.ready;
             preloadAllCanvaTemplates();
